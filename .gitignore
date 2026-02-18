@@ -1,0 +1,39 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+src-tauri/target/
+
+# IDE & Tools
+.idea/
+.vscode/
+.claude/
+*.swp
+*.swo
+.DS_Store
+
+# Logs
+*.log
+npm-debug.log*
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Test coverage
+coverage/
+
+# Tauri
+src-tauri/target/
+src-tauri/WixTools/
+src-tauri/Cargo.lock
+
+# macOS
+.DS_Store
+*.dmg
+
+# Temporary files
+*.tmp
+*.temp

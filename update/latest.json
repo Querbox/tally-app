@@ -1,0 +1,13 @@
+{
+  "version": "1.3.0",
+  "releaseDate": "2026-02-17",
+  "changelog": [
+    "Intelligente Hinweise: Erkennung oft verschobener Aufgaben und Deadline-Warnungen",
+    "Einfacher Ein/Aus-Schalter fuer Hinweise in den Einstellungen",
+    "Kundenerkennung im Aufgabentitel (Expert-Modus)",
+    "Schlankeres System: weniger Komplexitaet, mehr Fokus",
+    "Verbesserte Performance durch vereinfachte Muster-Erkennung"
+  ],
+  "downloadUrl": "https://github.com/Querbox/tally-app/releases/latest/download/Tally_Mac_Apple_Silicon.dmg",
+  "minimumVersion": "1.0.0"
+}

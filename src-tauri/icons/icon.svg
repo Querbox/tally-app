@@ -1,0 +1,50 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background with gradient -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1f1f23"/>
+      <stop offset="100%" style="stop-color:#0c0c0e"/>
+    </linearGradient>
+    <linearGradient id="checkGradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff"/>
+      <stop offset="100%" style="stop-color:#d4d4d8"/>
+    </linearGradient>
+    <linearGradient id="checkGradient2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#a1a1aa"/>
+      <stop offset="100%" style="stop-color:#71717a"/>
+    </linearGradient>
+    <!-- Shadow filter -->
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000" flood-opacity="0.4"/>
+    </filter>
+  </defs>
+
+  <!-- Rounded square background -->
+  <rect width="1024" height="1024" rx="220" fill="url(#bgGradient)"/>
+
+  <!-- Inner subtle border -->
+  <rect x="40" y="40" width="944" height="944" rx="190" fill="none" stroke="#ffffff" stroke-width="2" opacity="0.05"/>
+
+  <!-- Top checkmark (larger, brighter) -->
+  <g filter="url(#shadow)">
+    <path
+      d="M220 520 L420 720 L804 280"
+      stroke="url(#checkGradient1)"
+      stroke-width="72"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      fill="none"
+    />
+  </g>
+
+  <!-- Bottom checkmark (smaller, dimmer, offset) -->
+  <path
+    d="M220 680 L380 840 L700 460"
+    stroke="url(#checkGradient2)"
+    stroke-width="56"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    fill="none"
+    opacity="0.5"
+  />
+</svg>

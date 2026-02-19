@@ -69,9 +69,11 @@ export function UpdateModal({ onClose, onShowWhatsNew }: UpdateModalProps) {
       }
     } catch (err) {
       console.error('Update check failed:', err);
-      const message = err instanceof Error ? err.message : '';
+      const message = err instanceof Error ? err.message : typeof err === 'string' ? err : String(err);
       if (message.includes('fetch') || message.includes('network') || message.includes('connect')) {
         setError('Keine Internetverbindung');
+      } else if (message) {
+        setError(`Update-Prüfung fehlgeschlagen: ${message}`);
       } else {
         setUpdate(null);
       }
@@ -120,13 +122,13 @@ export function UpdateModal({ onClose, onShowWhatsNew }: UpdateModalProps) {
       }, 1500);
     } catch (err) {
       console.error('Update download/install failed:', err);
-      const message = err instanceof Error ? err.message : 'Unbekannter Fehler';
+      const message = err instanceof Error ? err.message : typeof err === 'string' ? err : String(err);
       setDownloading(false);
       setDownloadPhase('downloading');
 
       if (message.includes('signature')) {
         setError('Update-Signatur ungültig. Bitte versuche es später erneut.');
-      } else if (message.includes('network') || message.includes('fetch')) {
+      } else if (message.includes('network') || message.includes('fetch') || message.includes('connect')) {
         setError('Download fehlgeschlagen. Prüfe deine Internetverbindung.');
       } else {
         setError(`Update fehlgeschlagen: ${message}`);

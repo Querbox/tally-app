@@ -340,7 +340,7 @@ export const useSettingsStore = create<SettingsStore>()(
       sidebarCollapsed: false,
       workTimeWidgetCollapsed: false,
       themeMode: 'light' as ThemeMode,
-      appVersion: '1.3.0',
+      appVersion: '1.4.0',
       lastUpdateCheck: null,
       dismissedVersion: null,
       lastSeenVersion: null,

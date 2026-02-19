@@ -43,6 +43,16 @@ export interface Release {
  */
 export const RELEASES: Release[] = [
   {
+    version: '1.4.0',
+    date: '2026-02-19',
+    title: 'UI Redesign',
+    highlights: [
+      { text: 'Einstellungen & Statistiken mit Sidebar-Navigation', emoji: '🎨' },
+      { text: 'Dokument-Icon bei Aufgaben mit Dokumenten', emoji: '📄' },
+      { text: 'Visuell aufgefrischte Oberfläche', emoji: '✨' },
+    ],
+  },
+  {
     version: '1.3.1',
     date: '2026-02-19',
     title: 'Feedback & Verbesserungen',
@@ -122,7 +132,7 @@ export const RELEASES: Release[] = [
 /**
  * Aktuelle App-Version (muss mit settingsStore übereinstimmen)
  */
-export const CURRENT_VERSION = '1.3.1';
+export const CURRENT_VERSION = '1.4.0';
 
 /**
  * Vergleicht zwei Versionsnummern.

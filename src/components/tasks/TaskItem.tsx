@@ -16,8 +16,9 @@ import { PatternSuggestion } from '../assistance/PatternSuggestion';
 import { usePatternStore } from '../../stores/patternStore';
 import {
   Check, Clock, Flag, Target, ListChecks, RefreshCw,
-  Trash2, Calendar, CalendarPlus, Copy, CheckCircle, Circle, Edit3, Sparkles
+  Trash2, Calendar, CalendarPlus, Copy, CheckCircle, Circle, Edit3, Sparkles, FileText
 } from 'lucide-react';
+import { useDocumentStore } from '../../stores/documentStore';
 
 const PRIORITY_CONFIG: Record<TaskPriority, { label: string; color: string; bgColor: string }> = {
   urgent: { label: 'Dringend', color: '#dc2626', bgColor: '#fef2f2' },
@@ -128,6 +129,9 @@ export const TaskItem = memo(function TaskItem({
   const priorityMenuRef = useRef<HTMLDivElement>(null);
   const priorityButtonRef = useRef<HTMLButtonElement>(null);
   const contextMenuRef = useRef<HTMLDivElement>(null);
+
+  // Check if task has linked documents
+  const hasDocuments = useDocumentStore((s) => s.documents.some((doc) => doc.taskId === task.id));
 
   // Memoize expensive calculations
   const totalTime = useMemo(
@@ -493,6 +497,11 @@ export const TaskItem = memo(function TaskItem({
                   style={{ backgroundColor: `${client.color}15`, color: client.color }}
                 >
                   {client.name}
+                </span>
+              )}
+              {hasDocuments && (
+                <span className="text-xs px-2 py-0.5 rounded bg-gray-100 text-gray-500 flex items-center gap-1">
+                  <FileText className="w-3 h-3" />
                 </span>
               )}
 

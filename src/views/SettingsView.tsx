@@ -50,10 +50,206 @@ import {
   Lightbulb,
   ExternalLink,
   Zap,
+  Check,
+  Minus,
+  Coffee,
 } from 'lucide-react';
 import type { ThemeMode } from '../stores/settingsStore';
 import { PRESET_COLORS } from '../constants/colors';
 import { getShortcutsForSettings } from '../config/shortcuts';
+
+// ---------------------------------------------------------------------------
+// Inline Sub-Components
+// ---------------------------------------------------------------------------
+
+/** Wraps a settings section in a white card with rounded corners */
+function SettingsSection({
+  children,
+  className = '',
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <section className={`bg-white border border-gray-100 rounded-2xl p-5 ${className}`}>
+      {children}
+    </section>
+  );
+}
+
+/** macOS-style toggle row */
+function ToggleRow({
+  label,
+  description,
+  checked,
+  onChange,
+  icon,
+}: {
+  label: string;
+  description?: string;
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+  icon?: React.ReactNode;
+}) {
+  return (
+    <label className="flex items-center justify-between p-3 bg-gray-50 rounded-xl cursor-pointer transition-all duration-200 hover:bg-gray-100/80">
+      <div className="flex items-center gap-3 flex-1 min-w-0">
+        {icon && <span className="flex-shrink-0">{icon}</span>}
+        <div className="min-w-0">
+          <span className="text-sm text-gray-700 font-medium block">{label}</span>
+          {description && (
+            <p className="text-xs text-gray-400 mt-0.5 leading-snug">{description}</p>
+          )}
+        </div>
+      </div>
+      {/* macOS-style toggle */}
+      <button
+        type="button"
+        role="switch"
+        aria-checked={checked}
+        onClick={(e) => {
+          e.preventDefault();
+          onChange(!checked);
+        }}
+        className={`relative inline-flex h-6 w-11 flex-shrink-0 rounded-full transition-colors duration-200 ease-in-out focus:outline-none ml-3 ${
+          checked ? 'bg-gray-900' : 'bg-gray-300'
+        }`}
+      >
+        <span
+          className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition-transform duration-200 ease-in-out mt-0.5 ${
+            checked ? 'translate-x-[22px] ml-0' : 'translate-x-0.5'
+          }`}
+        />
+      </button>
+    </label>
+  );
+}
+
+/** Selectable option card with checkmark badge (used for theme selection) */
+function OptionCard({
+  selected,
+  onClick,
+  children,
+  className = '',
+}: {
+  selected: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={`relative flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all duration-200 ${
+        selected
+          ? 'border-gray-900 bg-gray-50 shadow-sm'
+          : 'border-gray-100 bg-gray-50 hover:border-gray-200 hover:bg-gray-100/70'
+      } ${className}`}
+    >
+      {selected && (
+        <span className="absolute top-2 right-2 w-5 h-5 bg-gray-900 rounded-full flex items-center justify-center">
+          <Check className="w-3 h-3 text-white" />
+        </span>
+      )}
+      {children}
+    </button>
+  );
+}
+
+/** Big number with minus / plus buttons (for focus timer) */
+function NumberStepper({
+  value,
+  onChange,
+  min = 1,
+  max = 120,
+  step = 1,
+  unit = 'Min',
+}: {
+  value: number;
+  onChange: (v: number) => void;
+  min?: number;
+  max?: number;
+  step?: number;
+  unit?: string;
+}) {
+  return (
+    <div className="flex items-center gap-3">
+      <button
+        type="button"
+        onClick={() => onChange(Math.max(min, value - step))}
+        disabled={value <= min}
+        className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-gray-200 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+      >
+        <Minus className="w-4 h-4" />
+      </button>
+      <div className="text-center min-w-[3.5rem]">
+        <span className="text-2xl font-bold text-gray-900 tabular-nums">{value}</span>
+        <span className="text-xs text-gray-400 ml-1">{unit}</span>
+      </div>
+      <button
+        type="button"
+        onClick={() => onChange(Math.min(max, value + step))}
+        disabled={value >= max}
+        className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-gray-200 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+      >
+        <Plus className="w-4 h-4" />
+      </button>
+    </div>
+  );
+}
+
+/** Slider row with live value display */
+function SliderRow({
+  label,
+  value,
+  onChange,
+  min = 0,
+  max = 100,
+  step = 1,
+  unit = '',
+  leftLabel,
+  rightLabel,
+}: {
+  label: string;
+  value: number;
+  onChange: (v: number) => void;
+  min?: number;
+  max?: number;
+  step?: number;
+  unit?: string;
+  leftLabel?: string;
+  rightLabel?: string;
+}) {
+  return (
+    <div className="p-3 bg-gray-50 rounded-xl">
+      <div className="flex items-center justify-between mb-2">
+        <span className="text-sm text-gray-700 font-medium">{label}</span>
+        <span className="text-sm font-semibold text-gray-900 tabular-nums">
+          {value}{unit}
+        </span>
+      </div>
+      <input
+        type="range"
+        min={min}
+        max={max}
+        step={step}
+        value={value}
+        onChange={(e) => onChange(Number(e.target.value))}
+        className="w-full accent-gray-900"
+      />
+      {(leftLabel || rightLabel) && (
+        <div className="flex justify-between text-xs text-gray-400 mt-1">
+          <span>{leftLabel}</span>
+          <span>{rightLabel}</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Types & Constants
+// ---------------------------------------------------------------------------
 
 interface SettingsViewProps {
   onClose: () => void;
@@ -95,6 +291,12 @@ const PATTERN_SETTINGS_CONFIG: { type: PatternType; label: string; description: 
     description: 'Kundenname im Aufgabentitel erkennen und zuordnen',
   },
 ];
+
+const DAY_LABELS = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
+
+// ---------------------------------------------------------------------------
+// Main Component
+// ---------------------------------------------------------------------------
 
 export function SettingsView({ onClose }: SettingsViewProps) {
   const settings = useSettingsStore(useShallow((s) => s));
@@ -253,13 +455,16 @@ export function SettingsView({ onClose }: SettingsViewProps) {
     setShowOnboarding(true);
   };
 
+  // =========================================================================
   // Tab Content Renderers
+  // =========================================================================
+
   const renderGeneralTab = () => (
     <div className="space-y-6">
-      {/* Theme Settings */}
-      <section className="bg-gray-50 rounded-2xl p-5">
+      {/* Theme Settings — OptionCards with mini-previews */}
+      <SettingsSection>
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-9 h-9 bg-gray-200 rounded-xl flex items-center justify-center">
+          <div className="w-9 h-9 bg-gray-100 rounded-xl flex items-center justify-center">
             {settings.themeMode === 'dark' ? (
               <Moon className="w-5 h-5 text-gray-700" />
             ) : settings.themeMode === 'light' ? (
@@ -270,44 +475,49 @@ export function SettingsView({ onClose }: SettingsViewProps) {
           </div>
           <h3 className="font-medium text-gray-900">Erscheinungsbild</h3>
         </div>
-        <div className="flex gap-2">
-          {[
-            { mode: 'light' as ThemeMode, icon: Sun, label: 'Hell' },
-            { mode: 'dark' as ThemeMode, icon: Moon, label: 'Dunkel' },
-            { mode: 'system' as ThemeMode, icon: Monitor, label: 'System' },
-          ].map(({ mode, icon: Icon, label }) => (
-            <button
+        <div className="grid grid-cols-3 gap-3">
+          {([
+            { mode: 'light' as ThemeMode, icon: Sun, label: 'Hell', bg: 'bg-white', bar: 'bg-gray-200', text: 'bg-gray-300' },
+            { mode: 'dark' as ThemeMode, icon: Moon, label: 'Dunkel', bg: 'bg-gray-800', bar: 'bg-gray-600', text: 'bg-gray-500' },
+            { mode: 'system' as ThemeMode, icon: Monitor, label: 'System', bg: 'bg-gradient-to-r from-white to-gray-800', bar: 'bg-gray-400', text: 'bg-gray-400' },
+          ] as const).map(({ mode, icon: Icon, label, bg, bar, text }) => (
+            <OptionCard
               key={mode}
+              selected={settings.themeMode === mode}
               onClick={() => settings.setThemeMode(mode)}
-              className={`flex-1 flex flex-col items-center gap-2 p-3 rounded-xl transition-all ${
-                settings.themeMode === mode
-                  ? 'bg-gray-900 text-white'
-                  : 'bg-white text-gray-600 hover:bg-gray-100'
-              }`}
             >
-              <Icon className="w-5 h-5" />
-              <span className="text-xs font-medium">{label}</span>
-            </button>
+              {/* Mini preview */}
+              <div className={`w-full h-14 rounded-lg ${bg} border border-gray-200 p-2 flex flex-col gap-1.5`}>
+                <div className={`h-1.5 w-8 ${bar} rounded-full`} />
+                <div className={`h-1.5 w-12 ${text} rounded-full`} />
+                <div className={`h-1.5 w-6 ${text} rounded-full`} />
+              </div>
+              <div className="flex items-center gap-1.5">
+                <Icon className="w-4 h-4 text-gray-500" />
+                <span className="text-xs font-medium text-gray-700">{label}</span>
+              </div>
+            </OptionCard>
           ))}
         </div>
-      </section>
+      </SettingsSection>
 
       {/* Work Hours */}
-      <section className="bg-gray-50 rounded-2xl p-5">
+      <SettingsSection>
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-9 h-9 bg-blue-100 rounded-xl flex items-center justify-center">
+          <div className="w-9 h-9 bg-blue-50 rounded-xl flex items-center justify-center">
             <Clock className="w-5 h-5 text-blue-600" />
           </div>
           <h3 className="font-medium text-gray-900">Arbeitszeiten</h3>
         </div>
-        <div className="grid grid-cols-2 gap-4">
+
+        <div className="grid grid-cols-2 gap-4 mb-4">
           <div>
             <label className="block text-xs text-gray-500 mb-1.5">Arbeitsbeginn</label>
             <input
               type="time"
               value={settings.workStartTime}
               onChange={(e) => settings.updateSettings({ workStartTime: e.target.value })}
-              className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-900/10 transition-all duration-200"
+              className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-900/10 transition-all duration-200"
             />
           </div>
           <div>
@@ -316,48 +526,49 @@ export function SettingsView({ onClose }: SettingsViewProps) {
               type="time"
               value={settings.workEndTime}
               onChange={(e) => settings.updateSettings({ workEndTime: e.target.value })}
-              className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-900/10 transition-all duration-200"
+              className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-900/10 transition-all duration-200"
             />
           </div>
         </div>
 
-        {/* Soll-Arbeitszeit */}
-        <div className="grid grid-cols-2 gap-4 mt-4 pt-4 border-t border-gray-200">
-          <div>
-            <label className="block text-xs text-gray-500 mb-1.5">Soll-Stunden pro Woche</label>
-            <div className="flex items-center gap-2">
-              <input
-                type="number"
-                min="1"
-                max="60"
-                step="1"
-                value={settings.weeklyWorkHours}
-                onChange={(e) => settings.updateSettings({ weeklyWorkHours: parseInt(e.target.value) || 40 })}
-                className="w-20 px-3 py-2 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900/10 text-center"
-              />
-              <span className="text-sm text-gray-500">Stunden</span>
-            </div>
-          </div>
-          <div>
-            <label className="block text-xs text-gray-500 mb-1.5">Arbeitstage pro Woche</label>
-            <div className="flex items-center gap-2">
-              <input
-                type="number"
-                min="1"
-                max="7"
-                step="1"
-                value={settings.workDaysPerWeek}
-                onChange={(e) => settings.updateSettings({ workDaysPerWeek: parseInt(e.target.value) || 5 })}
-                className="w-20 px-3 py-2 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900/10 text-center"
-              />
-              <span className="text-sm text-gray-500">Tage</span>
-            </div>
+        {/* Weekly hours — SliderRow */}
+        <SliderRow
+          label="Soll-Stunden pro Woche"
+          value={settings.weeklyWorkHours}
+          onChange={(v) => settings.updateSettings({ weeklyWorkHours: v })}
+          min={1}
+          max={60}
+          step={1}
+          unit=" Std"
+        />
+
+        {/* Visual day buttons Mo-So */}
+        <div className="mt-4">
+          <label className="block text-xs text-gray-500 mb-2">Arbeitstage pro Woche</label>
+          <div className="flex gap-2">
+            {DAY_LABELS.map((day, idx) => {
+              const dayNum = idx + 1; // 1=Mo .. 7=So
+              const isActive = dayNum <= settings.workDaysPerWeek;
+              return (
+                <button
+                  key={day}
+                  onClick={() => settings.updateSettings({ workDaysPerWeek: dayNum })}
+                  className={`flex-1 py-2 rounded-xl text-xs font-semibold transition-all duration-200 ${
+                    isActive
+                      ? 'bg-gray-900 text-white shadow-sm'
+                      : 'bg-gray-50 text-gray-400 hover:bg-gray-100'
+                  }`}
+                >
+                  {day}
+                </button>
+              );
+            })}
           </div>
         </div>
-      </section>
+      </SettingsSection>
 
       {/* Expert Mode */}
-      <section className="bg-gradient-to-br from-purple-50 to-indigo-50 rounded-2xl p-5 border border-purple-100">
+      <SettingsSection className="!bg-gradient-to-br from-purple-50 to-indigo-50 !border-purple-100">
         <div className="flex items-center gap-3 mb-4">
           <div className="w-9 h-9 bg-purple-100 rounded-xl flex items-center justify-center">
             <Sparkles className="w-5 h-5 text-purple-600" />
@@ -368,172 +579,90 @@ export function SettingsView({ onClose }: SettingsViewProps) {
           </div>
         </div>
         <div className="space-y-3">
-          <label className="flex items-center justify-between p-3 bg-white/70 rounded-xl hover:bg-white transition-all duration-200 cursor-pointer">
-            <div className="flex-1">
-              <span className="text-sm text-gray-700 font-medium">Experten-Modus aktivieren</span>
-              <p className="text-xs text-gray-500 mt-0.5">
-                Zeigt erweiterte Funktionen wie Prioritäten-Flags, Timer-Button, Filter und Sortierung
-              </p>
-            </div>
-            <input
-              type="checkbox"
-              checked={settings.expertModeSettings?.enabled ?? false}
-              onChange={(e) => settings.updateExpertModeSettings({ enabled: e.target.checked })}
-              className="w-4 h-4 rounded border-gray-300 ml-3"
-            />
-          </label>
+          <ToggleRow
+            label="Experten-Modus aktivieren"
+            description="Zeigt erweiterte Funktionen wie Prioritäten-Flags, Timer-Button, Filter und Sortierung"
+            checked={settings.expertModeSettings?.enabled ?? false}
+            onChange={(v) => settings.updateExpertModeSettings({ enabled: v })}
+          />
 
-          {/* Feature-Toggles - nur sichtbar wenn Experten-Modus aktiv */}
+          {/* Feature-Toggles — nur sichtbar wenn Experten-Modus aktiv */}
           {settings.expertModeSettings?.enabled && (
             <div className="space-y-2 pt-2 border-t border-purple-200/50">
               <p className="text-xs text-purple-600 font-medium px-1">Erweiterte Features:</p>
 
-              {/* Custom Shortcuts */}
-              <label className="flex items-center justify-between p-3 bg-white/60 rounded-xl hover:bg-white transition-all duration-200 cursor-pointer">
-                <div className="flex-1">
-                  <span className="text-sm text-gray-700 font-medium flex items-center gap-2">
-                    <Keyboard className="w-4 h-4 text-purple-500" />
-                    Eigene Tastenkürzel
-                  </span>
-                  <p className="text-xs text-gray-500 mt-0.5 ml-6">
-                    Definiere eigene Shortcuts für häufige Aktionen
-                  </p>
-                </div>
-                <input
-                  type="checkbox"
-                  checked={settings.expertModeSettings?.customShortcuts ?? false}
-                  onChange={(e) => settings.updateExpertModeSettings({ customShortcuts: e.target.checked })}
-                  className="w-4 h-4 rounded border-gray-300 ml-3"
-                />
-              </label>
+              <ToggleRow
+                label="Eigene Tastenkürzel"
+                description="Definiere eigene Shortcuts für häufige Aktionen"
+                checked={settings.expertModeSettings?.customShortcuts ?? false}
+                onChange={(v) => settings.updateExpertModeSettings({ customShortcuts: v })}
+                icon={<Keyboard className="w-4 h-4 text-purple-500" />}
+              />
 
-              {/* Advanced Filters */}
-              <label className="flex items-center justify-between p-3 bg-white/60 rounded-xl hover:bg-white transition-all duration-200 cursor-pointer">
-                <div className="flex-1">
-                  <span className="text-sm text-gray-700 font-medium flex items-center gap-2">
-                    <ListChecks className="w-4 h-4 text-blue-500" />
-                    Erweiterte Filter
-                  </span>
-                  <p className="text-xs text-gray-500 mt-0.5 ml-6">
-                    Komplexe Filter mit UND/ODER-Logik, gespeicherte Filter
-                  </p>
-                </div>
-                <input
-                  type="checkbox"
-                  checked={settings.expertModeSettings?.advancedFilters ?? false}
-                  onChange={(e) => settings.updateExpertModeSettings({ advancedFilters: e.target.checked })}
-                  className="w-4 h-4 rounded border-gray-300 ml-3"
-                />
-              </label>
+              <ToggleRow
+                label="Erweiterte Filter"
+                description="Komplexe Filter mit UND/ODER-Logik, gespeicherte Filter"
+                checked={settings.expertModeSettings?.advancedFilters ?? false}
+                onChange={(v) => settings.updateExpertModeSettings({ advancedFilters: v })}
+                icon={<ListChecks className="w-4 h-4 text-blue-500" />}
+              />
 
-              {/* Automations */}
-              <label className="flex items-center justify-between p-3 bg-white/60 rounded-xl hover:bg-white transition-all duration-200 cursor-pointer">
-                <div className="flex-1">
-                  <span className="text-sm text-gray-700 font-medium flex items-center gap-2">
-                    <RefreshCw className="w-4 h-4 text-green-500" />
-                    Automatisierungen
-                  </span>
-                  <p className="text-xs text-gray-500 mt-0.5 ml-6">
-                    Regeln für automatische Aktionen (z.B. Priorität setzen)
-                  </p>
-                </div>
-                <input
-                  type="checkbox"
-                  checked={settings.expertModeSettings?.automations ?? false}
-                  onChange={(e) => settings.updateExpertModeSettings({ automations: e.target.checked })}
-                  className="w-4 h-4 rounded border-gray-300 ml-3"
-                />
-              </label>
+              <ToggleRow
+                label="Automatisierungen"
+                description="Regeln für automatische Aktionen (z.B. Priorität setzen)"
+                checked={settings.expertModeSettings?.automations ?? false}
+                onChange={(v) => settings.updateExpertModeSettings({ automations: v })}
+                icon={<RefreshCw className="w-4 h-4 text-green-500" />}
+              />
 
-              {/* Bulk Operations */}
-              <label className="flex items-center justify-between p-3 bg-white/60 rounded-xl hover:bg-white transition-all duration-200 cursor-pointer">
-                <div className="flex-1">
-                  <span className="text-sm text-gray-700 font-medium flex items-center gap-2">
-                    <ListChecks className="w-4 h-4 text-orange-500" />
-                    Massenbearbeitung
-                  </span>
-                  <p className="text-xs text-gray-500 mt-0.5 ml-6">
-                    Mehrere Aufgaben gleichzeitig bearbeiten
-                  </p>
-                </div>
-                <input
-                  type="checkbox"
-                  checked={settings.expertModeSettings?.bulkOperations ?? false}
-                  onChange={(e) => settings.updateExpertModeSettings({ bulkOperations: e.target.checked })}
-                  className="w-4 h-4 rounded border-gray-300 ml-3"
-                />
-              </label>
+              <ToggleRow
+                label="Massenbearbeitung"
+                description="Mehrere Aufgaben gleichzeitig bearbeiten"
+                checked={settings.expertModeSettings?.bulkOperations ?? false}
+                onChange={(v) => settings.updateExpertModeSettings({ bulkOperations: v })}
+                icon={<ListChecks className="w-4 h-4 text-orange-500" />}
+              />
 
-              {/* Detailed Analytics */}
-              <label className="flex items-center justify-between p-3 bg-white/60 rounded-xl hover:bg-white transition-all duration-200 cursor-pointer">
-                <div className="flex-1">
-                  <span className="text-sm text-gray-700 font-medium flex items-center gap-2">
-                    <Target className="w-4 h-4 text-cyan-500" />
-                    Detaillierte Statistiken
-                  </span>
-                  <p className="text-xs text-gray-500 mt-0.5 ml-6">
-                    Erweiterte Produktivitäts-Analysen und Trends
-                  </p>
-                </div>
-                <input
-                  type="checkbox"
-                  checked={settings.expertModeSettings?.detailedAnalytics ?? false}
-                  onChange={(e) => settings.updateExpertModeSettings({ detailedAnalytics: e.target.checked })}
-                  className="w-4 h-4 rounded border-gray-300 ml-3"
-                />
-              </label>
+              <ToggleRow
+                label="Detaillierte Statistiken"
+                description="Erweiterte Produktivitäts-Analysen und Trends"
+                checked={settings.expertModeSettings?.detailedAnalytics ?? false}
+                onChange={(v) => settings.updateExpertModeSettings({ detailedAnalytics: v })}
+                icon={<Target className="w-4 h-4 text-cyan-500" />}
+              />
 
-              {/* Task Templates */}
-              <label className="flex items-center justify-between p-3 bg-white/60 rounded-xl hover:bg-white transition-all duration-200 cursor-pointer">
-                <div className="flex-1">
-                  <span className="text-sm text-gray-700 font-medium flex items-center gap-2">
-                    <Download className="w-4 h-4 text-pink-500" />
-                    Aufgaben-Templates
-                  </span>
-                  <p className="text-xs text-gray-500 mt-0.5 ml-6">
-                    Vorlagen für wiederkehrende Aufgaben speichern
-                  </p>
-                </div>
-                <input
-                  type="checkbox"
-                  checked={settings.expertModeSettings?.taskTemplates ?? false}
-                  onChange={(e) => settings.updateExpertModeSettings({ taskTemplates: e.target.checked })}
-                  className="w-4 h-4 rounded border-gray-300 ml-3"
-                />
-              </label>
+              <ToggleRow
+                label="Aufgaben-Templates"
+                description="Vorlagen für wiederkehrende Aufgaben speichern"
+                checked={settings.expertModeSettings?.taskTemplates ?? false}
+                onChange={(v) => settings.updateExpertModeSettings({ taskTemplates: v })}
+                icon={<Download className="w-4 h-4 text-pink-500" />}
+              />
             </div>
           )}
         </div>
-      </section>
+      </SettingsSection>
 
       {/* Calendar Settings */}
-      <section className="bg-gray-50 rounded-2xl p-5">
+      <SettingsSection>
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-9 h-9 bg-indigo-100 rounded-xl flex items-center justify-center">
+          <div className="w-9 h-9 bg-indigo-50 rounded-xl flex items-center justify-center">
             <Calendar className="w-5 h-5 text-indigo-600" />
           </div>
           <h3 className="font-medium text-gray-900">Kalender</h3>
         </div>
-        <div className="space-y-3">
-          <label className="flex items-center justify-between p-3 bg-white rounded-xl hover:bg-gray-50 transition-all duration-200 cursor-pointer">
-            <div>
-              <span className="text-sm text-gray-700 font-medium">Wochenende anzeigen</span>
-              <p className="text-xs text-gray-400 mt-0.5">Samstag und Sonntag in der Wochenansicht</p>
-            </div>
-            <input
-              type="checkbox"
-              checked={settings.showWeekends}
-              onChange={(e) => settings.updateSettings({ showWeekends: e.target.checked })}
-              className="w-4 h-4 rounded border-gray-300"
-            />
-          </label>
-        </div>
-      </section>
+        <ToggleRow
+          label="Wochenende anzeigen"
+          description="Samstag und Sonntag in der Wochenansicht"
+          checked={settings.showWeekends}
+          onChange={(v) => settings.updateSettings({ showWeekends: v })}
+        />
+      </SettingsSection>
 
       {/* Export/Import */}
-      <section className="bg-gray-50 rounded-2xl p-5">
+      <SettingsSection>
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-9 h-9 bg-emerald-100 rounded-xl flex items-center justify-center">
+          <div className="w-9 h-9 bg-emerald-50 rounded-xl flex items-center justify-center">
             <Download className="w-5 h-5 text-emerald-600" />
           </div>
           <h3 className="font-medium text-gray-900">Daten exportieren / importieren</h3>
@@ -542,20 +671,20 @@ export function SettingsView({ onClose }: SettingsViewProps) {
           <div className="flex gap-2">
             <button
               onClick={() => handleExportData('json')}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-all text-sm font-medium text-gray-700"
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl hover:bg-gray-100 transition-all text-sm font-medium text-gray-700"
             >
               <Download className="w-4 h-4" />
               JSON Export
             </button>
             <button
               onClick={() => handleExportData('csv')}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-all text-sm font-medium text-gray-700"
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl hover:bg-gray-100 transition-all text-sm font-medium text-gray-700"
             >
               <Download className="w-4 h-4" />
               CSV Export
             </button>
           </div>
-          <label className="flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-all text-sm font-medium text-gray-700 cursor-pointer">
+          <label className="flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl hover:bg-gray-100 transition-all text-sm font-medium text-gray-700 cursor-pointer">
             <Upload className="w-4 h-4" />
             JSON importieren
             <input
@@ -569,40 +698,32 @@ export function SettingsView({ onClose }: SettingsViewProps) {
             JSON enthält alle Daten, CSV nur die Aufgabenliste
           </p>
         </div>
-      </section>
+      </SettingsSection>
     </div>
   );
 
   const renderTasksTab = () => (
     <div className="space-y-6">
       {/* Task Settings */}
-      <section className="bg-gray-50 rounded-2xl p-5">
+      <SettingsSection>
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-9 h-9 bg-green-100 rounded-xl flex items-center justify-center">
+          <div className="w-9 h-9 bg-green-50 rounded-xl flex items-center justify-center">
             <ListChecks className="w-5 h-5 text-green-600" />
           </div>
           <h3 className="font-medium text-gray-900">Aufgaben</h3>
         </div>
         <div className="space-y-3">
-          <label className="flex items-center gap-3 cursor-pointer p-3 bg-white rounded-xl hover:bg-gray-50 transition-all duration-200">
-            <input
-              type="checkbox"
-              checked={settings.autoCarryOverTasks}
-              onChange={(e) => settings.updateSettings({ autoCarryOverTasks: e.target.checked })}
-              className="w-4 h-4 rounded border-gray-300"
-            />
-            <span className="text-sm text-gray-700">Unerledigte Aufgaben automatisch ubertragen</span>
-          </label>
-          <label className="flex items-center gap-3 cursor-pointer p-3 bg-white rounded-xl hover:bg-gray-50 transition-all duration-200">
-            <input
-              type="checkbox"
-              checked={settings.showCompletedTasks}
-              onChange={(e) => settings.updateSettings({ showCompletedTasks: e.target.checked })}
-              className="w-4 h-4 rounded border-gray-300"
-            />
-            <span className="text-sm text-gray-700">Erledigte Aufgaben anzeigen</span>
-          </label>
-          <div className="p-3 bg-white rounded-xl">
+          <ToggleRow
+            label="Unerledigte Aufgaben automatisch ubertragen"
+            checked={settings.autoCarryOverTasks}
+            onChange={(v) => settings.updateSettings({ autoCarryOverTasks: v })}
+          />
+          <ToggleRow
+            label="Erledigte Aufgaben anzeigen"
+            checked={settings.showCompletedTasks}
+            onChange={(v) => settings.updateSettings({ showCompletedTasks: v })}
+          />
+          <div className="p-3 bg-gray-50 rounded-xl">
             <label className="block text-xs text-gray-500 mb-1.5">Standard-Aufgabendauer</label>
             <div className="flex items-center gap-2">
               <input
@@ -612,111 +733,98 @@ export function SettingsView({ onClose }: SettingsViewProps) {
                 step="5"
                 value={settings.defaultTaskDuration}
                 onChange={(e) => settings.updateSettings({ defaultTaskDuration: parseInt(e.target.value) || 30 })}
-                className="w-20 px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900/10 text-center"
+                className="w-20 px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900/10 text-center bg-white"
               />
               <span className="text-sm text-gray-500">Minuten</span>
             </div>
           </div>
         </div>
-      </section>
+      </SettingsSection>
 
-      {/* Focus Timer Settings */}
-      <section className="bg-gray-50 rounded-2xl p-5">
+      {/* Focus Timer Settings — 3 colored cards with NumberSteppers */}
+      <SettingsSection>
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-9 h-9 bg-purple-100 rounded-xl flex items-center justify-center">
+          <div className="w-9 h-9 bg-purple-50 rounded-xl flex items-center justify-center">
             <Target className="w-5 h-5 text-purple-600" />
           </div>
           <h3 className="font-medium text-gray-900">Focus Timer</h3>
         </div>
         <div className="space-y-4">
-          {/* Timer Durations */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="p-3 bg-white rounded-xl">
-              <label className="block text-xs text-gray-500 mb-1.5">Focus-Zeit</label>
-              <div className="flex items-center gap-2">
-                <input
-                  type="number"
-                  min="1"
-                  max="120"
-                  value={settings.focusTimerSettings.focusDuration}
-                  onChange={(e) => settings.updateFocusTimerSettings({ focusDuration: parseInt(e.target.value) || 25 })}
-                  className="w-16 px-2 py-1.5 border border-gray-200 rounded-lg text-center text-sm"
-                />
-                <span className="text-xs text-gray-500">Min</span>
+          {/* 3 colored timer cards */}
+          <div className="grid grid-cols-3 gap-3">
+            {/* Focus card — purple */}
+            <div className="bg-purple-50 border border-purple-100 rounded-xl p-4 flex flex-col items-center gap-2">
+              <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
+                <Target className="w-4 h-4 text-purple-600" />
               </div>
+              <span className="text-xs font-medium text-purple-700">Focus-Zeit</span>
+              <NumberStepper
+                value={settings.focusTimerSettings.focusDuration}
+                onChange={(v) => settings.updateFocusTimerSettings({ focusDuration: v })}
+                min={1}
+                max={120}
+              />
             </div>
-            <div className="p-3 bg-white rounded-xl">
-              <label className="block text-xs text-gray-500 mb-1.5">Kurze Pause</label>
-              <div className="flex items-center gap-2">
-                <input
-                  type="number"
-                  min="1"
-                  max="30"
-                  value={settings.focusTimerSettings.shortBreakDuration}
-                  onChange={(e) => settings.updateFocusTimerSettings({ shortBreakDuration: parseInt(e.target.value) || 5 })}
-                  className="w-16 px-2 py-1.5 border border-gray-200 rounded-lg text-center text-sm"
-                />
-                <span className="text-xs text-gray-500">Min</span>
+            {/* Short break — green */}
+            <div className="bg-green-50 border border-green-100 rounded-xl p-4 flex flex-col items-center gap-2">
+              <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                <Coffee className="w-4 h-4 text-green-600" />
               </div>
+              <span className="text-xs font-medium text-green-700">Kurze Pause</span>
+              <NumberStepper
+                value={settings.focusTimerSettings.shortBreakDuration}
+                onChange={(v) => settings.updateFocusTimerSettings({ shortBreakDuration: v })}
+                min={1}
+                max={30}
+              />
             </div>
-            <div className="p-3 bg-white rounded-xl">
-              <label className="block text-xs text-gray-500 mb-1.5">Lange Pause</label>
-              <div className="flex items-center gap-2">
-                <input
-                  type="number"
-                  min="1"
-                  max="60"
-                  value={settings.focusTimerSettings.longBreakDuration}
-                  onChange={(e) => settings.updateFocusTimerSettings({ longBreakDuration: parseInt(e.target.value) || 15 })}
-                  className="w-16 px-2 py-1.5 border border-gray-200 rounded-lg text-center text-sm"
-                />
-                <span className="text-xs text-gray-500">Min</span>
+            {/* Long break — blue */}
+            <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 flex flex-col items-center gap-2">
+              <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                <Coffee className="w-4 h-4 text-blue-600" />
               </div>
+              <span className="text-xs font-medium text-blue-700">Lange Pause</span>
+              <NumberStepper
+                value={settings.focusTimerSettings.longBreakDuration}
+                onChange={(v) => settings.updateFocusTimerSettings({ longBreakDuration: v })}
+                min={1}
+                max={60}
+              />
             </div>
-            <div className="p-3 bg-white rounded-xl">
-              <label className="block text-xs text-gray-500 mb-1.5">Sessions bis Pause</label>
-              <div className="flex items-center gap-2">
-                <input
-                  type="number"
-                  min="1"
-                  max="10"
-                  value={settings.focusTimerSettings.sessionsUntilLongBreak}
-                  onChange={(e) => settings.updateFocusTimerSettings({ sessionsUntilLongBreak: parseInt(e.target.value) || 4 })}
-                  className="w-16 px-2 py-1.5 border border-gray-200 rounded-lg text-center text-sm"
-                />
-                <span className="text-xs text-gray-500">×</span>
-              </div>
-            </div>
+          </div>
+
+          {/* Sessions until long break */}
+          <div className="p-3 bg-gray-50 rounded-xl flex items-center justify-between">
+            <span className="text-sm text-gray-700 font-medium">Sessions bis lange Pause</span>
+            <NumberStepper
+              value={settings.focusTimerSettings.sessionsUntilLongBreak}
+              onChange={(v) => settings.updateFocusTimerSettings({ sessionsUntilLongBreak: v })}
+              min={1}
+              max={10}
+              unit="x"
+            />
           </div>
 
           {/* Auto-start options */}
           <div className="space-y-2">
-            <label className="flex items-center justify-between p-3 bg-white rounded-xl hover:bg-gray-50 transition-all cursor-pointer">
-              <span className="text-sm text-gray-700">Pausen automatisch starten</span>
-              <input
-                type="checkbox"
-                checked={settings.focusTimerSettings.autoStartBreaks}
-                onChange={(e) => settings.updateFocusTimerSettings({ autoStartBreaks: e.target.checked })}
-                className="w-4 h-4 rounded border-gray-300"
-              />
-            </label>
-            <label className="flex items-center justify-between p-3 bg-white rounded-xl hover:bg-gray-50 transition-all cursor-pointer">
-              <span className="text-sm text-gray-700">Focus nach Pause automatisch starten</span>
-              <input
-                type="checkbox"
-                checked={settings.focusTimerSettings.autoStartFocus}
-                onChange={(e) => settings.updateFocusTimerSettings({ autoStartFocus: e.target.checked })}
-                className="w-4 h-4 rounded border-gray-300"
-              />
-            </label>
+            <ToggleRow
+              label="Pausen automatisch starten"
+              checked={settings.focusTimerSettings.autoStartBreaks}
+              onChange={(v) => settings.updateFocusTimerSettings({ autoStartBreaks: v })}
+            />
+            <ToggleRow
+              label="Focus nach Pause automatisch starten"
+              checked={settings.focusTimerSettings.autoStartFocus}
+              onChange={(v) => settings.updateFocusTimerSettings({ autoStartFocus: v })}
+            />
           </div>
         </div>
-      </section>
+      </SettingsSection>
 
       {/* Tags */}
-      <section className="bg-gray-50 rounded-2xl p-5">
+      <SettingsSection>
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-9 h-9 bg-amber-100 rounded-xl flex items-center justify-center">
+          <div className="w-9 h-9 bg-amber-50 rounded-xl flex items-center justify-center">
             <Tag className="w-5 h-5 text-amber-600" />
           </div>
           <h3 className="font-medium text-gray-900">Tags</h3>
@@ -730,7 +838,7 @@ export function SettingsView({ onClose }: SettingsViewProps) {
             tags.map((tag) => (
               <div
                 key={tag.id}
-                className="flex items-center justify-between p-3 bg-white rounded-xl group hover:shadow-sm transition-all duration-200"
+                className="flex items-center justify-between p-3 bg-gray-50 rounded-xl group hover:shadow-sm transition-all duration-200"
               >
                 <div className="flex items-center gap-3">
                   <span
@@ -751,7 +859,7 @@ export function SettingsView({ onClose }: SettingsViewProps) {
         </div>
 
         {/* Add New Tag */}
-        <div className="bg-white rounded-xl p-3 border border-gray-100">
+        <div className="bg-gray-50 rounded-xl p-3">
           <label className="block text-xs text-gray-500 mb-2">Neuer Tag</label>
           <div className="flex items-center gap-2">
             <div className="flex gap-1.5">
@@ -773,7 +881,7 @@ export function SettingsView({ onClose }: SettingsViewProps) {
               value={newTagName}
               onChange={(e) => setNewTagName(e.target.value)}
               placeholder="Tag-Name..."
-              className="flex-1 px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-900/10 transition-all duration-200 text-sm"
+              className="flex-1 px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-900/10 transition-all duration-200 text-sm bg-white"
               onKeyDown={(e) => e.key === 'Enter' && handleAddTag()}
             />
             <button
@@ -785,52 +893,42 @@ export function SettingsView({ onClose }: SettingsViewProps) {
             </button>
           </div>
         </div>
-      </section>
+      </SettingsSection>
     </div>
   );
 
   const renderNotificationsTab = () => (
     <div className="space-y-6">
       {/* Sound Settings */}
-      <section className="bg-gray-50 rounded-2xl p-5">
+      <SettingsSection>
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-9 h-9 bg-orange-100 rounded-xl flex items-center justify-center">
+          <div className="w-9 h-9 bg-orange-50 rounded-xl flex items-center justify-center">
             <Volume2 className="w-5 h-5 text-orange-600" />
           </div>
           <h3 className="font-medium text-gray-900">Sound-Effekte</h3>
         </div>
         <div className="space-y-3">
           {/* Master Toggle */}
-          <label className="flex items-center justify-between p-3 bg-white rounded-xl hover:bg-gray-50 transition-all duration-200">
-            <span className="text-sm text-gray-700 font-medium">Sounds aktiviert</span>
-            <input
-              type="checkbox"
-              checked={settings.soundSettings.enabled}
-              onChange={(e) => settings.updateSoundSettings({ enabled: e.target.checked })}
-              className="w-4 h-4 rounded border-gray-300"
-            />
-          </label>
+          <ToggleRow
+            label="Sounds aktiviert"
+            checked={settings.soundSettings.enabled}
+            onChange={(v) => settings.updateSoundSettings({ enabled: v })}
+          />
 
           {settings.soundSettings.enabled && (
             <>
               {/* Volume Slider */}
-              <div className="p-3 bg-white rounded-xl">
-                <label className="block text-xs text-gray-500 mb-2">Lautstärke</label>
-                <input
-                  type="range"
-                  min="0"
-                  max="1"
-                  step="0.1"
-                  value={settings.soundSettings.volume}
-                  onChange={(e) => settings.updateSoundSettings({ volume: parseFloat(e.target.value) })}
-                  className="w-full accent-gray-900"
-                />
-                <div className="flex justify-between text-xs text-gray-400 mt-1">
-                  <span>Leise</span>
-                  <span>{Math.round(settings.soundSettings.volume * 100)}%</span>
-                  <span>Laut</span>
-                </div>
-              </div>
+              <SliderRow
+                label="Lautstärke"
+                value={Math.round(settings.soundSettings.volume * 100)}
+                onChange={(v) => settings.updateSoundSettings({ volume: v / 100 })}
+                min={0}
+                max={100}
+                step={10}
+                unit="%"
+                leftLabel="Leise"
+                rightLabel="Laut"
+              />
 
               {/* Individual Sound Toggles */}
               <div className="space-y-2">
@@ -841,19 +939,15 @@ export function SettingsView({ onClose }: SettingsViewProps) {
                   { key: 'timerStop' as const, label: 'Timer gestoppt', type: 'timerStop' as SoundType },
                   { key: 'meetingReminder' as const, label: 'Meeting-Erinnerung', type: 'meetingReminder' as SoundType },
                 ].map(({ key, label, type }) => (
-                  <div key={key} className="flex items-center justify-between p-3 bg-white rounded-xl group">
-                    <div className="flex items-center gap-3">
-                      <input
-                        type="checkbox"
-                        checked={settings.soundSettings[key]}
-                        onChange={(e) => settings.updateSoundSettings({ [key]: e.target.checked })}
-                        className="w-4 h-4 rounded border-gray-300"
-                      />
-                      <span className="text-sm text-gray-700">{label}</span>
-                    </div>
+                  <div key={key} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl group">
+                    <ToggleRow
+                      label={label}
+                      checked={settings.soundSettings[key]}
+                      onChange={(v) => settings.updateSoundSettings({ [key]: v })}
+                    />
                     <button
                       onClick={() => handleTestSound(type)}
-                      className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all opacity-0 group-hover:opacity-100"
+                      className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-200 rounded-lg transition-all opacity-0 group-hover:opacity-100 ml-2 flex-shrink-0"
                       title="Sound testen"
                     >
                       <Play className="w-4 h-4" />
@@ -864,42 +958,34 @@ export function SettingsView({ onClose }: SettingsViewProps) {
             </>
           )}
         </div>
-      </section>
+      </SettingsSection>
 
       {/* Notification Settings */}
-      <section className="bg-gray-50 rounded-2xl p-5">
+      <SettingsSection>
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-9 h-9 bg-pink-100 rounded-xl flex items-center justify-center">
+          <div className="w-9 h-9 bg-pink-50 rounded-xl flex items-center justify-center">
             <Bell className="w-5 h-5 text-pink-600" />
           </div>
           <h3 className="font-medium text-gray-900">Benachrichtigungen</h3>
         </div>
         <div className="space-y-3">
           {/* Master Toggle */}
-          <label className="flex items-center justify-between p-3 bg-white rounded-xl hover:bg-gray-50 transition-all duration-200">
-            <span className="text-sm text-gray-700 font-medium">Benachrichtigungen aktiviert</span>
-            <input
-              type="checkbox"
-              checked={settings.notificationSettings.enabled}
-              onChange={(e) => settings.updateNotificationSettings({ enabled: e.target.checked })}
-              className="w-4 h-4 rounded border-gray-300"
-            />
-          </label>
+          <ToggleRow
+            label="Benachrichtigungen aktiviert"
+            checked={settings.notificationSettings.enabled}
+            onChange={(v) => settings.updateNotificationSettings({ enabled: v })}
+          />
 
           {settings.notificationSettings.enabled && (
             <>
-              <label className="flex items-center justify-between p-3 bg-white rounded-xl hover:bg-gray-50 transition-all duration-200">
-                <span className="text-sm text-gray-700">Meeting-Erinnerungen</span>
-                <input
-                  type="checkbox"
-                  checked={settings.notificationSettings.meetingReminders}
-                  onChange={(e) => settings.updateNotificationSettings({ meetingReminders: e.target.checked })}
-                  className="w-4 h-4 rounded border-gray-300"
-                />
-              </label>
+              <ToggleRow
+                label="Meeting-Erinnerungen"
+                checked={settings.notificationSettings.meetingReminders}
+                onChange={(v) => settings.updateNotificationSettings({ meetingReminders: v })}
+              />
 
               {settings.notificationSettings.meetingReminders && (
-                <div className="p-3 bg-white rounded-xl">
+                <div className="p-3 bg-gray-50 rounded-xl">
                   <label className="block text-xs text-gray-500 mb-2">Erinnern vor Meeting</label>
                   <div className="flex flex-wrap gap-2">
                     {[30, 15, 10, 5, 1].map((minutes) => (
@@ -909,7 +995,7 @@ export function SettingsView({ onClose }: SettingsViewProps) {
                         className={`px-3 py-1.5 rounded-lg text-sm transition-all ${
                           settings.notificationSettings.reminderIntervals.includes(minutes)
                             ? 'bg-gray-900 text-white'
-                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                            : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
                         }`}
                       >
                         {minutes} Min
@@ -921,40 +1007,34 @@ export function SettingsView({ onClose }: SettingsViewProps) {
             </>
           )}
         </div>
-      </section>
+      </SettingsSection>
 
       {/* Intelligente Hinweise — einfacher Toggle */}
-      <section className="bg-gray-50 rounded-2xl p-5">
-        <label className="flex items-center justify-between cursor-pointer">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 bg-violet-100 rounded-xl flex items-center justify-center">
+      <SettingsSection>
+        <ToggleRow
+          label="Intelligente Hinweise"
+          description="Verschobene Aufgaben, Deadlines, Kundenerkennung"
+          checked={isAnyPatternEnabled()}
+          onChange={(v) => setAllPatternsEnabled(v)}
+          icon={
+            <div className="w-9 h-9 bg-violet-50 rounded-xl flex items-center justify-center">
               <Sparkles className="w-5 h-5 text-violet-600" />
             </div>
-            <div>
-              <h3 className="font-medium text-gray-900">Intelligente Hinweise</h3>
-              <p className="text-xs text-gray-500">Verschobene Aufgaben, Deadlines, Kundenerkennung</p>
-            </div>
-          </div>
-          <input
-            type="checkbox"
-            checked={isAnyPatternEnabled()}
-            onChange={(e) => setAllPatternsEnabled(e.target.checked)}
-            className="w-4 h-4 rounded border-gray-300 ml-3"
-          />
-        </label>
+          }
+        />
         {settings.expertModeSettings?.enabled && isAnyPatternEnabled() && (
           <p className="text-xs text-gray-400 mt-3 ml-12">
-            Einzelne Muster konfigurieren: Experten-Tools → Hinweise
+            Einzelne Muster konfigurieren: Experten-Tools &rarr; Hinweise
           </p>
         )}
-      </section>
+      </SettingsSection>
     </div>
   );
 
   const renderPrivacyTab = () => (
     <div className="space-y-6">
       {/* DSGVO Übersicht */}
-      <section className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl p-5 border border-indigo-100">
+      <SettingsSection className="!bg-gradient-to-br from-indigo-50 to-purple-50 !border-indigo-100">
         <div className="flex items-center gap-3 mb-4">
           <div className="w-9 h-9 bg-indigo-100 rounded-xl flex items-center justify-center">
             <Shield className="w-5 h-5 text-indigo-600" />
@@ -967,9 +1047,7 @@ export function SettingsView({ onClose }: SettingsViewProps) {
         <div className="space-y-3">
           <div className="flex items-start gap-3 p-3 bg-white/70 rounded-xl">
             <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-              <svg className="w-3.5 h-3.5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
+              <Check className="w-3.5 h-3.5 text-green-600" />
             </div>
             <div>
               <p className="text-sm font-medium text-gray-800">Lokale Datenspeicherung</p>
@@ -978,9 +1056,7 @@ export function SettingsView({ onClose }: SettingsViewProps) {
           </div>
           <div className="flex items-start gap-3 p-3 bg-white/70 rounded-xl">
             <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-              <svg className="w-3.5 h-3.5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
+              <Check className="w-3.5 h-3.5 text-green-600" />
             </div>
             <div>
               <p className="text-sm font-medium text-gray-800">Keine Registrierung erforderlich</p>
@@ -989,9 +1065,7 @@ export function SettingsView({ onClose }: SettingsViewProps) {
           </div>
           <div className="flex items-start gap-3 p-3 bg-white/70 rounded-xl">
             <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-              <svg className="w-3.5 h-3.5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
+              <Check className="w-3.5 h-3.5 text-green-600" />
             </div>
             <div>
               <p className="text-sm font-medium text-gray-800">Kein Tracking oder Analytics</p>
@@ -1000,9 +1074,7 @@ export function SettingsView({ onClose }: SettingsViewProps) {
           </div>
           <div className="flex items-start gap-3 p-3 bg-white/70 rounded-xl">
             <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-              <svg className="w-3.5 h-3.5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
+              <Check className="w-3.5 h-3.5 text-green-600" />
             </div>
             <div>
               <p className="text-sm font-medium text-gray-800">Volle Datenkontrolle</p>
@@ -1010,12 +1082,12 @@ export function SettingsView({ onClose }: SettingsViewProps) {
             </div>
           </div>
         </div>
-      </section>
+      </SettingsSection>
 
       {/* Externe Dienste */}
-      <section className="bg-gray-50 rounded-2xl p-5">
+      <SettingsSection>
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-9 h-9 bg-amber-100 rounded-xl flex items-center justify-center">
+          <div className="w-9 h-9 bg-amber-50 rounded-xl flex items-center justify-center">
             <Globe className="w-5 h-5 text-amber-600" />
           </div>
           <h3 className="font-medium text-gray-900">Externe Dienste (Opt-in)</h3>
@@ -1025,21 +1097,13 @@ export function SettingsView({ onClose }: SettingsViewProps) {
         </p>
         <div className="space-y-4">
           {/* External Logos Toggle */}
-          <div className="p-4 bg-white rounded-xl border border-gray-200">
-            <label className="flex items-start gap-3 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={settings.privacySettings?.allowExternalLogos ?? false}
-                onChange={(e) => settings.updatePrivacySettings({ allowExternalLogos: e.target.checked })}
-                className="w-4 h-4 rounded border-gray-300 mt-0.5"
-              />
-              <div className="flex-1">
-                <span className="text-sm font-medium text-gray-700">Firmenlogos automatisch laden</span>
-                <p className="text-xs text-gray-500 mt-1">
-                  Lädt Logos basierend auf der Website-Domain deiner Kunden.
-                </p>
-              </div>
-            </label>
+          <div className="p-4 bg-gray-50 rounded-xl">
+            <ToggleRow
+              label="Firmenlogos automatisch laden"
+              description="Lädt Logos basierend auf der Website-Domain deiner Kunden."
+              checked={settings.privacySettings?.allowExternalLogos ?? false}
+              onChange={(v) => settings.updatePrivacySettings({ allowExternalLogos: v })}
+            />
 
             {/* Detaillierte Info Box */}
             <div className="mt-3 p-3 bg-amber-50 rounded-lg">
@@ -1063,7 +1127,7 @@ export function SettingsView({ onClose }: SettingsViewProps) {
           </div>
 
           {/* Update Check Info */}
-          <div className="p-4 bg-white rounded-xl border border-gray-200">
+          <div className="p-4 bg-gray-50 rounded-xl">
             <div className="flex items-start gap-3">
               <Info className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
               <div>
@@ -1078,12 +1142,12 @@ export function SettingsView({ onClose }: SettingsViewProps) {
             </div>
           </div>
         </div>
-      </section>
+      </SettingsSection>
 
       {/* Code Splitting Info */}
-      <section className="bg-gray-50 rounded-2xl p-5">
+      <SettingsSection>
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-9 h-9 bg-blue-100 rounded-xl flex items-center justify-center">
+          <div className="w-9 h-9 bg-blue-50 rounded-xl flex items-center justify-center">
             <Info className="w-5 h-5 text-blue-600" />
           </div>
           <h3 className="font-medium text-gray-900">Lokales Code-Splitting</h3>
@@ -1092,11 +1156,9 @@ export function SettingsView({ onClose }: SettingsViewProps) {
           Um die initiale Ladezeit zu verkürzen, werden einige Funktionen erst bei Bedarf geladen:
         </p>
         <div className="space-y-2">
-          <div className="flex items-start gap-3 p-3 bg-white rounded-xl">
+          <div className="flex items-start gap-3 p-3 bg-gray-50 rounded-xl">
             <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-              <svg className="w-3.5 h-3.5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
+              <Check className="w-3.5 h-3.5 text-green-600" />
             </div>
             <div>
               <p className="text-sm font-medium text-gray-800">Dokument-Editor</p>
@@ -1111,35 +1173,35 @@ export function SettingsView({ onClose }: SettingsViewProps) {
             <strong>Keine externe Datenübertragung:</strong> Alle nachgeladenen Module sind Teil der App und werden lokal von deinem Gerät geladen – es werden keine Daten ins Internet gesendet.
           </p>
         </div>
-      </section>
+      </SettingsSection>
 
       {/* Deine Rechte */}
-      <section className="bg-gray-50 rounded-2xl p-5">
+      <SettingsSection>
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-9 h-9 bg-blue-100 rounded-xl flex items-center justify-center">
+          <div className="w-9 h-9 bg-blue-50 rounded-xl flex items-center justify-center">
             <Info className="w-5 h-5 text-blue-600" />
           </div>
           <h3 className="font-medium text-gray-900">Deine Rechte nach DSGVO</h3>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div className="p-3 bg-white rounded-xl">
+          <div className="p-3 bg-gray-50 rounded-xl">
             <p className="text-sm font-medium text-gray-700">Auskunftsrecht</p>
             <p className="text-xs text-gray-500 mt-0.5">Du kannst jederzeit deine Daten über den JSON-Export einsehen.</p>
           </div>
-          <div className="p-3 bg-white rounded-xl">
+          <div className="p-3 bg-gray-50 rounded-xl">
             <p className="text-sm font-medium text-gray-700">Recht auf Löschung</p>
             <p className="text-xs text-gray-500 mt-0.5">Du kannst alle Daten jederzeit vollständig löschen.</p>
           </div>
-          <div className="p-3 bg-white rounded-xl">
+          <div className="p-3 bg-gray-50 rounded-xl">
             <p className="text-sm font-medium text-gray-700">Recht auf Datenübertragbarkeit</p>
             <p className="text-xs text-gray-500 mt-0.5">Exportiere deine Daten als JSON oder CSV.</p>
           </div>
-          <div className="p-3 bg-white rounded-xl">
+          <div className="p-3 bg-gray-50 rounded-xl">
             <p className="text-sm font-medium text-gray-700">Widerrufsrecht</p>
             <p className="text-xs text-gray-500 mt-0.5">Einwilligungen können jederzeit widerrufen werden.</p>
           </div>
         </div>
-      </section>
+      </SettingsSection>
 
       {/* Danger Zone */}
       <section className="border border-red-200 rounded-2xl p-5 bg-red-50/30">
@@ -1195,7 +1257,7 @@ export function SettingsView({ onClose }: SettingsViewProps) {
     return (
       <div className="space-y-6">
         {/* Info Banner */}
-        <section className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl p-5 border border-amber-100">
+        <SettingsSection className="!bg-gradient-to-br from-amber-50 to-orange-50 !border-amber-100">
           <div className="flex items-center gap-3 mb-3">
             <div className="w-9 h-9 bg-amber-100 rounded-xl flex items-center justify-center">
               <Trash2 className="w-5 h-5 text-amber-600" />
@@ -1213,7 +1275,7 @@ export function SettingsView({ onClose }: SettingsViewProps) {
           <p className="text-sm text-amber-700">
             Gelöschte Aufgaben werden nach 7 Tagen automatisch endgültig entfernt.
           </p>
-        </section>
+        </SettingsSection>
 
         {/* Empty Trash Button */}
         {deletedTasks.length > 0 && (
@@ -1270,7 +1332,7 @@ export function SettingsView({ onClose }: SettingsViewProps) {
                           Gelöscht {formatDate(task.deletedAt)}
                         </span>
                         <span className="text-xs text-amber-500">
-                          • {daysLeft === 0 ? 'Wird heute gelöscht' : `${daysLeft} ${daysLeft === 1 ? 'Tag' : 'Tage'} verbleibend`}
+                          &bull; {daysLeft === 0 ? 'Wird heute gelöscht' : `${daysLeft} ${daysLeft === 1 ? 'Tag' : 'Tage'} verbleibend`}
                         </span>
                       </div>
                     </div>
@@ -1304,7 +1366,7 @@ export function SettingsView({ onClose }: SettingsViewProps) {
   const renderAboutTab = () => (
     <div className="space-y-6">
       {/* App Updates */}
-      <section className="bg-gray-50 rounded-2xl p-5">
+      <SettingsSection>
         <div className="flex items-center gap-3 mb-4">
           <div className="w-9 h-9 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
             <Sparkles className="w-5 h-5 text-white" />
@@ -1315,7 +1377,7 @@ export function SettingsView({ onClose }: SettingsViewProps) {
           </div>
         </div>
         <div className="space-y-3">
-          <div className="flex items-center justify-between p-3 bg-white rounded-xl">
+          <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
             <div>
               <span className="text-sm text-gray-700">Aktuell installiert</span>
               <p className="text-xs text-gray-400">
@@ -1336,18 +1398,18 @@ export function SettingsView({ onClose }: SettingsViewProps) {
           </div>
           <button
             onClick={() => setShowUpdateModal(true)}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-all text-sm font-medium text-gray-700"
+            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl hover:bg-gray-100 transition-all text-sm font-medium text-gray-700"
           >
             <RefreshCw className="w-4 h-4" />
             Nach Updates suchen
           </button>
         </div>
-      </section>
+      </SettingsSection>
 
       {/* Onboarding */}
-      <section className="bg-gray-50 rounded-2xl p-5">
+      <SettingsSection>
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-9 h-9 bg-cyan-100 rounded-xl flex items-center justify-center">
+          <div className="w-9 h-9 bg-cyan-50 rounded-xl flex items-center justify-center">
             <BookOpen className="w-5 h-5 text-cyan-600" />
           </div>
           <h3 className="font-medium text-gray-900">Einführung</h3>
@@ -1369,12 +1431,12 @@ export function SettingsView({ onClose }: SettingsViewProps) {
             </p>
           )}
         </div>
-      </section>
+      </SettingsSection>
 
       {/* Feedback */}
-      <section className="bg-gray-50 rounded-2xl p-5">
+      <SettingsSection>
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-9 h-9 bg-pink-100 rounded-xl flex items-center justify-center">
+          <div className="w-9 h-9 bg-pink-50 rounded-xl flex items-center justify-center">
             <MessageSquare className="w-5 h-5 text-pink-600" />
           </div>
           <h3 className="font-medium text-gray-900">Feedback & Support</h3>
@@ -1386,21 +1448,21 @@ export function SettingsView({ onClose }: SettingsViewProps) {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
             <button
               onClick={() => setFeedbackType('feature')}
-              className="flex items-center justify-center gap-2 px-4 py-3 bg-white border border-gray-200 rounded-xl hover:bg-amber-50 hover:border-amber-200 transition-all text-sm font-medium text-gray-700"
+              className="flex items-center justify-center gap-2 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl hover:bg-amber-50 hover:border-amber-200 transition-all text-sm font-medium text-gray-700"
             >
               <Lightbulb className="w-4 h-4 text-amber-500" />
               <span>Feature-Idee</span>
             </button>
             <button
               onClick={() => setFeedbackType('bug')}
-              className="flex items-center justify-center gap-2 px-4 py-3 bg-white border border-gray-200 rounded-xl hover:bg-red-50 hover:border-red-200 transition-all text-sm font-medium text-gray-700"
+              className="flex items-center justify-center gap-2 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl hover:bg-red-50 hover:border-red-200 transition-all text-sm font-medium text-gray-700"
             >
               <Bug className="w-4 h-4 text-red-500" />
               <span>Bug melden</span>
             </button>
             <button
               onClick={() => setFeedbackType('feedback')}
-              className="flex items-center justify-center gap-2 px-4 py-3 bg-white border border-gray-200 rounded-xl hover:bg-pink-50 hover:border-pink-200 transition-all text-sm font-medium text-gray-700"
+              className="flex items-center justify-center gap-2 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl hover:bg-pink-50 hover:border-pink-200 transition-all text-sm font-medium text-gray-700"
             >
               <Heart className="w-4 h-4 text-pink-500" />
               <span>Feedback</span>
@@ -1416,12 +1478,12 @@ export function SettingsView({ onClose }: SettingsViewProps) {
             GitHub Issues öffnen
           </a>
         </div>
-      </section>
+      </SettingsSection>
 
-      {/* Keyboard Shortcuts - dynamisch aus zentraler Config */}
-      <section className="bg-gray-50 rounded-2xl p-5">
+      {/* Keyboard Shortcuts — dynamisch aus zentraler Config */}
+      <SettingsSection>
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-9 h-9 bg-gray-200 rounded-xl flex items-center justify-center">
+          <div className="w-9 h-9 bg-gray-100 rounded-xl flex items-center justify-center">
             <Keyboard className="w-5 h-5 text-gray-600" />
           </div>
           <h3 className="font-medium text-gray-900">Tastaturkürzel</h3>
@@ -1430,26 +1492,26 @@ export function SettingsView({ onClose }: SettingsViewProps) {
           {getShortcutsForSettings().map((shortcut) => (
             <div
               key={shortcut.id}
-              className="flex items-center justify-between p-3 bg-white rounded-xl"
+              className="flex items-center justify-between p-3 bg-gray-50 rounded-xl"
             >
               <span className="text-sm text-gray-700">{shortcut.label}</span>
-              <kbd className="px-2 py-1 text-xs font-mono bg-gray-100 border border-gray-200 rounded text-gray-600">
+              <kbd className="px-2 py-1 text-xs font-mono bg-white border border-gray-200 rounded text-gray-600">
                 {shortcut.displayKey}
               </kbd>
             </div>
           ))}
         </div>
         <p className="text-xs text-gray-400 mt-3 text-center">
-          Drücke <kbd className="px-1.5 py-0.5 bg-white border border-gray-200 rounded">?</kbd> um alle Kürzel anzuzeigen
+          Drücke <kbd className="px-1.5 py-0.5 bg-gray-50 border border-gray-200 rounded">?</kbd> um alle Kürzel anzuzeigen
         </p>
-      </section>
+      </SettingsSection>
     </div>
   );
 
   const renderExpertTab = () => (
     <div className="space-y-6">
       {/* Info Banner */}
-      <section className="bg-gradient-to-br from-purple-50 to-indigo-50 rounded-2xl p-5 border border-purple-100">
+      <SettingsSection className="!bg-gradient-to-br from-purple-50 to-indigo-50 !border-purple-100">
         <div className="flex items-center gap-3 mb-3">
           <div className="w-9 h-9 bg-purple-100 rounded-xl flex items-center justify-center">
             <Zap className="w-5 h-5 text-purple-600" />
@@ -1461,9 +1523,9 @@ export function SettingsView({ onClose }: SettingsViewProps) {
         </div>
         <p className="text-sm text-purple-700">
           Hier findest du alle erweiterten Features die du im Experten-Modus aktiviert hast.
-          Aktiviere oder deaktiviere einzelne Features unter "Allgemein → Experten-Modus".
+          Aktiviere oder deaktiviere einzelne Features unter "Allgemein &rarr; Experten-Modus".
         </p>
-      </section>
+      </SettingsSection>
 
       {/* Custom Shortcuts */}
       {settings.expertModeSettings?.customShortcuts && (
@@ -1487,9 +1549,9 @@ export function SettingsView({ onClose }: SettingsViewProps) {
 
       {/* Intelligente Hinweise — Detailkonfiguration */}
       {isAnyPatternEnabled() && (
-        <section className="bg-gray-50 rounded-2xl p-5">
+        <SettingsSection>
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-9 h-9 bg-violet-100 rounded-xl flex items-center justify-center">
+            <div className="w-9 h-9 bg-violet-50 rounded-xl flex items-center justify-center">
               <Sparkles className="w-5 h-5 text-violet-600" />
             </div>
             <div>
@@ -1502,7 +1564,7 @@ export function SettingsView({ onClose }: SettingsViewProps) {
               const pref = patternPreferences.find((p) => p.patternType === type);
               const currentAutonomy = pref?.autonomy ?? 'ask';
               return (
-                <div key={type} className="p-3 bg-white rounded-xl">
+                <div key={type} className="p-3 bg-gray-50 rounded-xl">
                   <div className="mb-2">
                     <span className="text-sm text-gray-700 font-medium">{label}</span>
                     <p className="text-xs text-gray-500 mt-0.5">{description}</p>
@@ -1519,7 +1581,7 @@ export function SettingsView({ onClose }: SettingsViewProps) {
                               : mode === 'ask'
                                 ? 'bg-blue-100 text-blue-700'
                                 : 'bg-gray-200 text-gray-600'
-                            : 'bg-gray-50 text-gray-400 hover:bg-gray-100'
+                            : 'bg-white text-gray-400 hover:bg-gray-100'
                         }`}
                       >
                         {mode === 'auto' ? 'Automatisch' : mode === 'ask' ? 'Fragen' : 'Aus'}
@@ -1530,7 +1592,7 @@ export function SettingsView({ onClose }: SettingsViewProps) {
               );
             })}
           </div>
-        </section>
+        </SettingsSection>
       )}
 
       {/* Keine Features aktiviert */}
@@ -1543,7 +1605,7 @@ export function SettingsView({ onClose }: SettingsViewProps) {
           <Zap className="w-16 h-16 text-gray-300 mx-auto mb-4" />
           <p className="text-gray-500 text-sm">Keine Experten-Features aktiviert</p>
           <p className="text-gray-400 text-xs mt-2">
-            Gehe zu "Allgemein → Experten-Modus" um Features zu aktivieren
+            Gehe zu "Allgemein &rarr; Experten-Modus" um Features zu aktivieren
           </p>
         </div>
       )}
@@ -1571,12 +1633,16 @@ export function SettingsView({ onClose }: SettingsViewProps) {
     }
   };
 
+  // =========================================================================
+  // Modal Shell — sidebar navigation layout
+  // =========================================================================
+
   const modalContent = (
     <div
       className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center animate-fade-in"
       style={{ zIndex: 9999 }}
     >
-      <div className="bg-white rounded-2xl w-full max-w-5xl max-h-[85vh] overflow-hidden flex flex-col shadow-2xl animate-scale-in mx-6">
+      <div className="bg-white rounded-2xl w-full max-w-[1200px] max-h-[85vh] overflow-hidden flex flex-col shadow-2xl animate-scale-in mx-6">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-100">
           <h2 className="text-xl font-semibold text-gray-900">Einstellungen</h2>
@@ -1588,34 +1654,42 @@ export function SettingsView({ onClose }: SettingsViewProps) {
           </button>
         </div>
 
-        {/* Tab Navigation */}
-        <div className="px-6 pt-4 border-b border-gray-100">
-          <div className="flex gap-1 overflow-x-auto pb-4">
-            {TABS
-              .filter(tab => !tab.expertOnly || settings.expertModeSettings?.enabled)
-              .map((tab) => {
-                const Icon = tab.icon;
-                return (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id)}
-                    className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all ${
-                      activeTab === tab.id
-                        ? tab.expertOnly ? 'bg-purple-600 text-white' : 'bg-gray-900 text-white'
-                        : tab.expertOnly ? 'text-purple-600 hover:bg-purple-50' : 'text-gray-600 hover:bg-gray-100'
-                    }`}
-                  >
-                    <Icon className="w-4 h-4" />
-                    {tab.label}
-                  </button>
-                );
-              })}
-          </div>
-        </div>
+        {/* Body: Sidebar + Content */}
+        <div className="flex flex-1 overflow-hidden">
+          {/* Sidebar Navigation — 200px */}
+          <nav className="w-[200px] flex-shrink-0 border-r border-gray-100 py-4 px-3 overflow-y-auto">
+            <div className="space-y-1">
+              {TABS
+                .filter(tab => !tab.expertOnly || settings.expertModeSettings?.enabled)
+                .map((tab) => {
+                  const Icon = tab.icon;
+                  const isActive = activeTab === tab.id;
+                  return (
+                    <button
+                      key={tab.id}
+                      onClick={() => setActiveTab(tab.id)}
+                      className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
+                        isActive
+                          ? tab.expertOnly
+                            ? 'bg-purple-600 text-white'
+                            : 'bg-gray-900 text-white'
+                          : tab.expertOnly
+                            ? 'text-purple-600 hover:bg-purple-50'
+                            : 'text-gray-600 hover:bg-gray-50'
+                      }`}
+                    >
+                      <Icon className="w-4 h-4 flex-shrink-0" />
+                      <span className="truncate">{tab.label}</span>
+                    </button>
+                  );
+                })}
+            </div>
+          </nav>
 
-        {/* Content */}
-        <div className="flex-1 overflow-y-auto p-6">
-          {renderTabContent()}
+          {/* Content Area */}
+          <div className="flex-1 overflow-y-auto p-6">
+            {renderTabContent()}
+          </div>
         </div>
       </div>
 

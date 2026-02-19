@@ -49,7 +49,7 @@ export const RELEASES: Release[] = [
     highlights: [
       { text: 'Hinweise bei oft verschobenen Aufgaben und Deadlines', emoji: '💡' },
       { text: 'Kundenerkennung im Aufgabentitel (Expert-Modus)', emoji: '🏷️' },
-      { text: 'Schlankeres System, weniger Ablenkung', emoji: '✨' },
+      { text: 'Automatische Updates direkt in der App', emoji: '🔄' },
     ],
   },
   {

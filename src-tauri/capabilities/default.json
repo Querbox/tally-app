@@ -12,6 +12,8 @@
     "fs:default",
     "fs:allow-app-read-recursive",
     "fs:allow-app-write-recursive",
-    "fs:allow-app-meta-recursive"
+    "fs:allow-app-meta-recursive",
+    "updater:default",
+    "process:allow-restart"
   ]
 }

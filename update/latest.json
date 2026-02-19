@@ -1,13 +1,11 @@
 {
   "version": "1.3.0",
-  "releaseDate": "2026-02-17",
-  "changelog": [
-    "Intelligente Hinweise: Erkennung oft verschobener Aufgaben und Deadline-Warnungen",
-    "Einfacher Ein/Aus-Schalter fuer Hinweise in den Einstellungen",
-    "Kundenerkennung im Aufgabentitel (Expert-Modus)",
-    "Schlankeres System: weniger Komplexitaet, mehr Fokus",
-    "Verbesserte Performance durch vereinfachte Muster-Erkennung"
-  ],
-  "downloadUrl": "https://github.com/Querbox/tally-app/releases/latest/download/Tally_Mac_Apple_Silicon.dmg",
-  "minimumVersion": "1.0.0"
+  "notes": "Intelligente Hinweise: Erkennung oft verschobener Aufgaben und Deadline-Warnungen. Kundenerkennung im Aufgabentitel (Expert-Modus). Schlankeres System, weniger Ablenkung.",
+  "pub_date": "2026-02-17T00:00:00Z",
+  "platforms": {
+    "darwin-aarch64": {
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVUZHFzWkd4TXlPcUtaUE1xbmowYm5TdCt4cUlYUmtveTJYemxPb2dFUkFmczJmck1jMEhhVTd4UHZYZnVJRnhYa00vbkVHeDBDYTIwL1FVY01qbW5yUDlSN3J6cHloOHdJPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzcxNDg4NjMzCWZpbGU6VGFsbHkuYXBwLnRhci5negpoUGR5N2dlSmFId2FkTjJ2Tzg5dThCZ1lQOWFHeFkzY1ZYZVFyMXdxbUxRNWNEc1RxR3h1NzkxMG9PazBnTVR4M3pEQ01nT1kzN2ZPdDl5MXhNOGlEQT09Cg==",
+      "url": "https://github.com/Querbox/tally-app/releases/latest/download/Tally.app.tar.gz"
+    }
+  }
 }

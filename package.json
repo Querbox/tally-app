@@ -14,6 +14,8 @@
   "dependencies": {
     "@tauri-apps/plugin-fs": "^2.4.5",
     "@tauri-apps/plugin-notification": "^2.3.3",
+    "@tauri-apps/plugin-process": "^2.3.1",
+    "@tauri-apps/plugin-updater": "^2.9.0",
     "@tiptap/extension-bubble-menu": "^3.19.0",
     "@tiptap/extension-code-block-lowlight": "^3.19.0",
     "@tiptap/extension-floating-menu": "^3.19.0",

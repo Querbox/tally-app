@@ -8,6 +8,7 @@ import type { PatternType } from '../types';
 import { playGlobalSound, type SoundType } from '../hooks/useSounds';
 import { UpdateModal } from '../components/modals/UpdateModal';
 import { WhatsNewModal } from '../components/modals/WhatsNewModal';
+import { FeedbackModal } from '../components/modals/FeedbackModal';
 import { CURRENT_VERSION } from '../data/releases';
 import { OnboardingModal } from '../components/onboarding/OnboardingModal';
 import {
@@ -115,6 +116,7 @@ export function SettingsView({ onClose }: SettingsViewProps) {
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [showWhatsNew, setShowWhatsNew] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [feedbackType, setFeedbackType] = useState<'feature' | 'bug' | 'feedback' | null>(null);
 
   const handleAddTag = () => {
     if (!newTagName.trim()) return;
@@ -1382,27 +1384,27 @@ export function SettingsView({ onClose }: SettingsViewProps) {
             Hast du Ideen, Probleme oder Wünsche? Dein Feedback hilft uns, Tally besser zu machen!
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-            <a
-              href="mailto:feedback@querbox.de?subject=Tally%20Feedback%20-%20Idee&body=Hallo%20Tally-Team%2C%0A%0AIch%20habe%20folgende%20Idee%3A%0A%0A"
-              className="flex items-center justify-center gap-2 px-4 py-3 bg-white border border-gray-200 rounded-xl hover:bg-amber-50 hover:border-amber-200 transition-all text-sm font-medium text-gray-700 group"
+            <button
+              onClick={() => setFeedbackType('feature')}
+              className="flex items-center justify-center gap-2 px-4 py-3 bg-white border border-gray-200 rounded-xl hover:bg-amber-50 hover:border-amber-200 transition-all text-sm font-medium text-gray-700"
             >
               <Lightbulb className="w-4 h-4 text-amber-500" />
               <span>Feature-Idee</span>
-            </a>
-            <a
-              href="mailto:feedback@querbox.de?subject=Tally%20Feedback%20-%20Bug&body=Hallo%20Tally-Team%2C%0A%0AIch%20habe%20folgenden%20Bug%20gefunden%3A%0A%0ABeschreibung%3A%0A%0ASchritte%20zum%20Reproduzieren%3A%0A1.%0A2.%0A3.%0A%0AErwartetes%20Verhalten%3A%0A%0ATally%20Version%3A%20"
-              className="flex items-center justify-center gap-2 px-4 py-3 bg-white border border-gray-200 rounded-xl hover:bg-red-50 hover:border-red-200 transition-all text-sm font-medium text-gray-700 group"
+            </button>
+            <button
+              onClick={() => setFeedbackType('bug')}
+              className="flex items-center justify-center gap-2 px-4 py-3 bg-white border border-gray-200 rounded-xl hover:bg-red-50 hover:border-red-200 transition-all text-sm font-medium text-gray-700"
             >
               <Bug className="w-4 h-4 text-red-500" />
               <span>Bug melden</span>
-            </a>
-            <a
-              href="mailto:feedback@querbox.de?subject=Tally%20Feedback%20-%20Allgemein&body=Hallo%20Tally-Team%2C%0A%0A"
-              className="flex items-center justify-center gap-2 px-4 py-3 bg-white border border-gray-200 rounded-xl hover:bg-pink-50 hover:border-pink-200 transition-all text-sm font-medium text-gray-700 group"
+            </button>
+            <button
+              onClick={() => setFeedbackType('feedback')}
+              className="flex items-center justify-center gap-2 px-4 py-3 bg-white border border-gray-200 rounded-xl hover:bg-pink-50 hover:border-pink-200 transition-all text-sm font-medium text-gray-700"
             >
               <Heart className="w-4 h-4 text-pink-500" />
               <span>Feedback</span>
-            </a>
+            </button>
           </div>
           <a
             href="https://github.com/Querbox/tally-app/issues"
@@ -1634,6 +1636,14 @@ export function SettingsView({ onClose }: SettingsViewProps) {
           onClose={() => setShowWhatsNew(false)}
           currentVersion={CURRENT_VERSION}
           lastSeenVersion={null}
+        />
+      )}
+
+      {/* Feedback Modal */}
+      {feedbackType && (
+        <FeedbackModal
+          feedbackType={feedbackType}
+          onClose={() => setFeedbackType(null)}
         />
       )}
 

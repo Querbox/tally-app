@@ -1,10 +1,10 @@
 {
-  "version": "1.3.0",
-  "notes": "Intelligente Hinweise: Erkennung oft verschobener Aufgaben und Deadline-Warnungen. Kundenerkennung im Aufgabentitel (Expert-Modus). Schlankeres System, weniger Ablenkung.",
-  "pub_date": "2026-02-17T00:00:00Z",
+  "version": "1.3.1",
+  "notes": "In-App Feedback direkt als GitHub Issue senden. Korrekte Versionsanzeige. Was ist neu? Button im Update-Dialog.",
+  "pub_date": "2026-02-19T00:00:00Z",
   "platforms": {
     "darwin-aarch64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVUZHFzWkd4TXlPcUxvWW9zeCsrT2gzUGJkUGszWWdSM2RhempLRlBLcCsyM2xjOVk2TXQyVXZMalZqUXlGY3dVK2krRUh4T3UwRGU2YXVlVm1aSS8wTjA3MnNnRmtvL1FvPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzcxNDkxNzA4CWZpbGU6VGFsbHkuYXBwLnRhci5negp4VnRKaktweTdmUCtVR0dZT3pnQlNtWUR4Si9lWWY2Y28wa043dmpSdGRBRk1ndFFFUEE5TXloWFFqdWhLbXFTelp3VDl4RW9zZzdxWUtZU2JGMDhDdz09Cg==",
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVUZHFzWkd4TXlPcURhb3prS3J3WG5wYkNhZTZna0VGbXhmTnZFRzRUaW9icmpiWDZaOXJJMjZkTnRlRm5YK09YY1pWVVBPMFRlYy8zcjFUaTVoYWh5bGVMSmk3dFhpTFFNPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzcxNDkzMTAyCWZpbGU6VGFsbHkuYXBwLnRhci5negpQTHpVNFRxU1lNcnR6L3V1SFFBZE9PSHdOekl0Vll0M3NWejAyeUlpaHVvb2JlbU9SVkN4YksrVGR1VXFmQ1dqbXZpdnFNNVlDUm1hY05JRjNzNTZCdz09Cg==",
       "url": "https://github.com/Querbox/tally-app/releases/latest/download/Tally.app.tar.gz"
     }
   }

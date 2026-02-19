@@ -43,6 +43,16 @@ export interface Release {
  */
 export const RELEASES: Release[] = [
   {
+    version: '1.3.1',
+    date: '2026-02-19',
+    title: 'Feedback & Verbesserungen',
+    highlights: [
+      { text: 'In-App Feedback direkt als GitHub Issue senden', emoji: '💬' },
+      { text: 'Versionsnummer wird korrekt angezeigt', emoji: '🔧' },
+      { text: '"Was ist neu?" Button im Update-Dialog', emoji: '✨' },
+    ],
+  },
+  {
     version: '1.3.0',
     date: '2026-02-17',
     title: 'Intelligente Hinweise',
@@ -112,7 +122,7 @@ export const RELEASES: Release[] = [
 /**
  * Aktuelle App-Version (muss mit settingsStore übereinstimmen)
  */
-export const CURRENT_VERSION = '1.3.0';
+export const CURRENT_VERSION = '1.3.1';
 
 /**
  * Vergleicht zwei Versionsnummern.

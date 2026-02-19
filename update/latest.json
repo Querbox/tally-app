@@ -1,10 +1,10 @@
 {
-  "version": "1.3.1",
-  "notes": "In-App Feedback direkt als GitHub Issue senden. Korrekte Versionsanzeige. Was ist neu? Button im Update-Dialog.",
+  "version": "1.4.0",
+  "notes": "UI Redesign: Settings & Statistiken mit moderner Sidebar-Navigation. Dokument-Icon bei Aufgaben mit verknüpften Dokumenten.",
   "pub_date": "2026-02-19T00:00:00Z",
   "platforms": {
     "darwin-aarch64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVUZHFzWkd4TXlPcURhb3prS3J3WG5wYkNhZTZna0VGbXhmTnZFRzRUaW9icmpiWDZaOXJJMjZkTnRlRm5YK09YY1pWVVBPMFRlYy8zcjFUaTVoYWh5bGVMSmk3dFhpTFFNPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzcxNDkzMTAyCWZpbGU6VGFsbHkuYXBwLnRhci5negpQTHpVNFRxU1lNcnR6L3V1SFFBZE9PSHdOekl0Vll0M3NWejAyeUlpaHVvb2JlbU9SVkN4YksrVGR1VXFmQ1dqbXZpdnFNNVlDUm1hY05JRjNzNTZCdz09Cg==",
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUldUZHFzWkd4TXlPcUhLazFGSUtBNHc3MzA2Z3JOU2hiQ1k5b0JyQWM3RXY3TXRnRWNSUDJBcDY1MW95TE1JWXJyakFLcUZqRDQzd0o1MzVTMVJabTdjaUJkZ3U1QjhKZ2c4PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzcxNDk3NzM4CWZpbGU6VGFsbHkuYXBwLnRhci5negoyY0g0VEkwTisrTjBVWkxaMkRpbHJEM1JhYjV1clVGQmk2TmtJU0lXMmpXVXpXZURXUk9taUpQYW9PMkZONUpGT0xqeE9iWml0V2Q1c3g3OWtjWWdCQT09Cg==",
       "url": "https://github.com/Querbox/tally-app/releases/latest/download/Tally.app.tar.gz"
     }
   }

@@ -7,6 +7,8 @@ import { usePatternStore } from '../stores/patternStore';
 import type { PatternType } from '../types';
 import { playGlobalSound, type SoundType } from '../hooks/useSounds';
 import { UpdateModal } from '../components/modals/UpdateModal';
+import { WhatsNewModal } from '../components/modals/WhatsNewModal';
+import { CURRENT_VERSION } from '../data/releases';
 import { OnboardingModal } from '../components/onboarding/OnboardingModal';
 import {
   CustomShortcutsEditor,
@@ -111,6 +113,7 @@ export function SettingsView({ onClose }: SettingsViewProps) {
   const [newTagName, setNewTagName] = useState('');
   const [newTagColor, setNewTagColor] = useState('#8B5CF6');
   const [showUpdateModal, setShowUpdateModal] = useState(false);
+  const [showWhatsNew, setShowWhatsNew] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
 
   const handleAddTag = () => {
@@ -1616,7 +1619,22 @@ export function SettingsView({ onClose }: SettingsViewProps) {
 
       {/* Update Modal */}
       {showUpdateModal && (
-        <UpdateModal onClose={() => setShowUpdateModal(false)} />
+        <UpdateModal
+          onClose={() => setShowUpdateModal(false)}
+          onShowWhatsNew={() => {
+            setShowUpdateModal(false);
+            setShowWhatsNew(true);
+          }}
+        />
+      )}
+
+      {/* What's New Modal */}
+      {showWhatsNew && (
+        <WhatsNewModal
+          onClose={() => setShowWhatsNew(false)}
+          currentVersion={CURRENT_VERSION}
+          lastSeenVersion={null}
+        />
       )}
 
       {/* Onboarding Modal */}

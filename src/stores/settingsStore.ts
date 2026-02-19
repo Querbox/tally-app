@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage, StateStorage } from 'zustand/middleware';
 import { createFileStorage, STORAGE_FILES, isTauri } from '../lib/fileStorage';
+import { CURRENT_VERSION } from '../data/releases';
 
 export interface DayRecord {
   date: string;
@@ -541,6 +542,12 @@ export const useSettingsStore = create<SettingsStore>()(
     {
       name: 'tally-settings',
       storage: createJSONStorage(() => storage),
+      onRehydrateStorage: () => (state) => {
+        // Nach dem Laden des persistierten Stores: appVersion immer auf aktuelle Version setzen
+        if (state && state.appVersion !== CURRENT_VERSION) {
+          state.updateSettings({ appVersion: CURRENT_VERSION });
+        }
+      },
     }
   )
 );

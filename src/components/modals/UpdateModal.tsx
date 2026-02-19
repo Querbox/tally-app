@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useSettingsStore } from '../../stores/settingsStore';
-import { Download, X, Sparkles, RefreshCw, CheckCircle } from 'lucide-react';
+import { Download, X, Sparkles, RefreshCw, CheckCircle, FileText } from 'lucide-react';
 import { isTauri } from '../../lib/fileStorage';
 
 interface UpdateModalProps {
   onClose: () => void;
+  onShowWhatsNew?: () => void;
 }
 
 function formatBytes(bytes: number): string {
@@ -14,7 +15,7 @@ function formatBytes(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-export function UpdateModal({ onClose }: UpdateModalProps) {
+export function UpdateModal({ onClose, onShowWhatsNew }: UpdateModalProps) {
   const appVersion = useSettingsStore((s) => s.appVersion);
   const dismissedVersion = useSettingsStore((s) => s.dismissedVersion);
   const updateSettings = useSettingsStore((s) => s.updateSettings);
@@ -304,6 +305,15 @@ export function UpdateModal({ onClose }: UpdateModalProps) {
         {/* Footer */}
         {!checking && !update && !error && !downloading && (
           <div className="px-6 pb-6 space-y-2">
+            {onShowWhatsNew && (
+              <button
+                onClick={onShowWhatsNew}
+                className="w-full px-4 py-3 text-gray-600 hover:bg-gray-100 rounded-xl transition-all duration-200 text-sm font-medium btn-press flex items-center justify-center gap-2"
+              >
+                <FileText className="w-4 h-4" />
+                Was ist neu?
+              </button>
+            )}
             <button
               onClick={checkForUpdates}
               className="w-full px-4 py-3 text-gray-600 hover:bg-gray-100 rounded-xl transition-all duration-200 text-sm font-medium btn-press flex items-center justify-center gap-2"

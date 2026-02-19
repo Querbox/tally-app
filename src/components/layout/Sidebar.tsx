@@ -18,6 +18,8 @@ import {
 } from 'lucide-react';
 import { ClientDetailModal } from '../modals/ClientDetailModal';
 import { UpdateModal } from '../modals/UpdateModal';
+import { WhatsNewModal } from '../modals/WhatsNewModal';
+import { CURRENT_VERSION } from '../../data/releases';
 import { TimeTrackerWidget } from '../time/TimeTrackerWidget';
 import { WorkTimeView } from '../../views/WorkTimeView';
 import { StatsView } from '../../views/StatsView';
@@ -45,6 +47,7 @@ export function Sidebar({ currentView, onViewChange, onOpenSettings }: SidebarPr
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [isNewClient, setIsNewClient] = useState(false);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
+  const [showWhatsNew, setShowWhatsNew] = useState(false);
   const [showWorkTimeView, setShowWorkTimeView] = useState(false);
   const [showStatsView, setShowStatsView] = useState(false);
   const [showMeetingsView, setShowMeetingsView] = useState(false);
@@ -365,7 +368,24 @@ export function Sidebar({ currentView, onViewChange, onOpenSettings }: SidebarPr
       )}
 
       {/* Update Modal */}
-      {showUpdateModal && <UpdateModal onClose={() => setShowUpdateModal(false)} />}
+      {showUpdateModal && (
+        <UpdateModal
+          onClose={() => setShowUpdateModal(false)}
+          onShowWhatsNew={() => {
+            setShowUpdateModal(false);
+            setShowWhatsNew(true);
+          }}
+        />
+      )}
+
+      {/* What's New Modal */}
+      {showWhatsNew && (
+        <WhatsNewModal
+          onClose={() => setShowWhatsNew(false)}
+          currentVersion={CURRENT_VERSION}
+          lastSeenVersion={null}
+        />
+      )}
 
       {/* Work Time View */}
       {showWorkTimeView && <WorkTimeView onClose={() => setShowWorkTimeView(false)} />}

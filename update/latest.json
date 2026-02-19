@@ -1,10 +1,10 @@
 {
-  "version": "1.4.0",
-  "notes": "UI Redesign: Settings & Statistiken mit moderner Sidebar-Navigation. Dokument-Icon bei Aufgaben mit verknüpften Dokumenten.",
+  "version": "1.4.1",
+  "notes": "Datumsnavigation im DayView: Zwischen Tagen wechseln mit Pfeilen, Heute-Button zum Zurückspringen.",
   "pub_date": "2026-02-19T00:00:00Z",
   "platforms": {
     "darwin-aarch64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVUZHFzWkd4TXlPcVBKNnl5bU5XR1dzTStlN1dqWlFKZ0RXbXpGSitOanpnRDJNTERPT1BKMExOWHpFdUdwZTFVMkN6VEk4ZCszZkdFY1NCQmc4NUxDbmM0YWU1OG1GSHdVPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzcxNTAyNjI2CWZpbGU6VGFsbHkuYXBwLnRhci5negpQUXV1cWpmeU1kZUZCMUd0YThMYzZvNkVtbjBaaEMxYS9uTnhUVmozQWUyVmUwM1k2TzU1UUZ4TkVBZFlicWxjbnE1Q2ZLTHBLcTI3VlE0N2Y0S3pDQT09Cg==",
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUldUZHFzWkd4TXlPcUZvOW9XUlo4bW9wSTVteWNTd1g0K3dtKzBudUdCbGlHYjliYU9EOGRpWVcwQU1JbzFXYXljbGFXdWJrc2pEeEt1Q3RTUHZkK1puVmpqZloxUllBWXdJPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzcxNTExMDk0CWZpbGU6VGFsbHkuYXBwLnRhci5negpHc2tPQjVHRUpYSXB6NitMMllZVmg5c2oxdnluWkJ0bVNyZUdiVnZ0cDd5QnlJS2NKZ3p0QWFvKzQ1VHNMUHVtWm1SMjB1djljeEZKZGg1M0daVThCdz09Cg==",
       "url": "https://github.com/Querbox/tally-app/releases/latest/download/Tally.app.tar.gz"
     }
   }

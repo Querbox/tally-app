@@ -43,6 +43,15 @@ export interface Release {
  */
 export const RELEASES: Release[] = [
   {
+    version: '1.4.1',
+    date: '2026-02-19',
+    title: 'Datumsnavigation',
+    highlights: [
+      { text: 'DayView: Zwischen Tagen navigieren mit Pfeiltasten', emoji: '📅' },
+      { text: 'Heute-Button springt zurück zum aktuellen Tag', emoji: '🏠' },
+    ],
+  },
+  {
     version: '1.4.0',
     date: '2026-02-19',
     title: 'UI Redesign',
@@ -132,7 +141,7 @@ export const RELEASES: Release[] = [
 /**
  * Aktuelle App-Version (muss mit settingsStore übereinstimmen)
  */
-export const CURRENT_VERSION = '1.4.0';
+export const CURRENT_VERSION = '1.4.1';
 
 /**
  * Vergleicht zwei Versionsnummern.

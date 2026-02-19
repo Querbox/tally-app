@@ -11,7 +11,7 @@ import { formatDuration } from '../utils/timeUtils';
 import { getTodayString, formatDateGerman, addDays } from '../utils/dateUtils';
 import { playGlobalSound } from '../hooks/useSounds';
 import { useToast } from '../components/common/Toast';
-import { Clock, Moon, Filter, Flag, X, Plus, ArrowUpDown, ArrowUp, ArrowDown, SortAsc, Target, Sparkles } from 'lucide-react';
+import { Clock, Moon, Filter, Flag, X, Plus, ArrowUpDown, ArrowUp, ArrowDown, SortAsc, Target, Sparkles, ChevronLeft, ChevronRight } from 'lucide-react';
 import type { Task, TaskPriority } from '../types';
 
 /**
@@ -136,6 +136,8 @@ export function DayView({ onEndDay, externalPriorityFilter, onPriorityFilterChan
   }, [externalPriorityFilter]);
 
   const today = getTodayString();
+  const [selectedDate, setSelectedDate] = useState<string>(today);
+  const isViewingToday = selectedDate === today;
 
   // Drag and drop handlers
   const handleDragStart = useCallback((task: Task, e: React.DragEvent) => {
@@ -221,10 +223,10 @@ export function DayView({ onEndDay, externalPriorityFilter, onPriorityFilterChan
     setDragOverTarget(null);
   }, [today, updateTask, tasks, toast, draggedTaskId]);
 
-  // Generate recurring meeting instances for today
+  // Generate recurring meeting instances for selected date
   useEffect(() => {
-    generateMeetingInstancesForDate(today);
-  }, [today, generateMeetingInstancesForDate]);
+    generateMeetingInstancesForDate(selectedDate);
+  }, [selectedDate, generateMeetingInstancesForDate]);
 
   // Combined filtering, grouping, sorting and stats in ONE useMemo for efficiency
   const {
@@ -238,8 +240,8 @@ export function DayView({ onEndDay, externalPriorityFilter, onPriorityFilterChan
     filteredCompletedTasks,
     stats,
   } = useMemo(() => {
-    // Step 1: Filter tasks for today
-    const todayTasks = tasks.filter((task) => task.scheduledDate === today);
+    // Step 1: Filter tasks for selected date
+    const todayTasks = tasks.filter((task) => task.scheduledDate === selectedDate);
 
     // Step 2: Group tasks in single pass
     const open: Task[] = [];
@@ -305,7 +307,7 @@ export function DayView({ onEndDay, externalPriorityFilter, onPriorityFilterChan
         totalTime,
       },
     };
-  }, [tasks, today, taskSortOption, priorityFilter]);
+  }, [tasks, selectedDate, taskSortOption, priorityFilter]);
 
   const activeFilter = FILTER_OPTIONS.find((f) => f.value === priorityFilter);
   const activeSort = SORT_OPTIONS.find((s) => s.value === (taskSortOption || 'newest'));
@@ -360,9 +362,33 @@ export function DayView({ onEndDay, externalPriorityFilter, onPriorityFilterChan
           <div className="max-w-2xl mx-auto">
             <div className="flex items-center justify-between animate-fade-in">
               <div>
-                <h1 className="text-xl font-semibold text-gray-900">
-                  {formatDateGerman(today)}
-                </h1>
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={() => setSelectedDate(addDays(selectedDate, -1))}
+                    className="p-1.5 hover:bg-gray-100 rounded-lg transition-all btn-press"
+                    title="Vorheriger Tag"
+                  >
+                    <ChevronLeft className="w-5 h-5 text-gray-500" />
+                  </button>
+                  <h1 className="text-xl font-semibold text-gray-900 px-1">
+                    {isViewingToday ? formatDateGerman(selectedDate) : formatDateGerman(selectedDate)}
+                  </h1>
+                  <button
+                    onClick={() => setSelectedDate(addDays(selectedDate, 1))}
+                    className="p-1.5 hover:bg-gray-100 rounded-lg transition-all btn-press"
+                    title="Nächster Tag"
+                  >
+                    <ChevronRight className="w-5 h-5 text-gray-500" />
+                  </button>
+                  {!isViewingToday && (
+                    <button
+                      onClick={() => setSelectedDate(today)}
+                      className="ml-2 px-3 py-1.5 text-sm font-medium text-white bg-gray-900 hover:bg-gray-800 rounded-lg transition-all btn-press"
+                    >
+                      Heute
+                    </button>
+                  )}
+                </div>
                 {/* Nur Zeit-Tracking anzeigen - keine Aufgaben-Statistiken */}
                 {stats.totalTime > 0 && (
                   <div className="flex items-center gap-1 mt-1 text-sm text-gray-500">
@@ -492,14 +518,16 @@ export function DayView({ onEndDay, externalPriorityFilter, onPriorityFilterChan
                 </>
               )}
 
-              {/* End Day Button */}
-              <button
-                onClick={onEndDay}
-                className="flex items-center gap-2 px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-xl transition-all duration-200 btn-press"
-              >
-                <Moon className="w-4 h-4" />
-                Tag beenden
-              </button>
+              {/* End Day Button - only when viewing today */}
+              {isViewingToday && (
+                <button
+                  onClick={onEndDay}
+                  className="flex items-center gap-2 px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-xl transition-all duration-200 btn-press"
+                >
+                  <Moon className="w-4 h-4" />
+                  Tag beenden
+                </button>
+              )}
             </div>
           </div>
           </div>
@@ -511,7 +539,7 @@ export function DayView({ onEndDay, externalPriorityFilter, onPriorityFilterChan
         <div className="max-w-2xl mx-auto">
         {/* Quick Add */}
         <div className="animate-fade-in-up opacity-0" style={{ animationDelay: '0.1s', animationFillMode: 'forwards' }}>
-          <QuickAddTask date={today} />
+          <QuickAddTask date={selectedDate} />
         </div>
 
         {/* HEUTE ZUERST - wenn manuell gesetzt */}

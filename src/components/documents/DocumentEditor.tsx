@@ -42,6 +42,8 @@ import {
   Minus,
 } from 'lucide-react';
 import { TallyMarks, TallyIcon } from './TallyMarksExtension';
+import { LinkPreview } from './LinkPreviewExtension';
+import { openUrl } from '../../utils/openUrl';
 
 // Erweitere Editor-Typen für TallyMarks
 declare module '@tiptap/core' {
@@ -61,6 +63,21 @@ interface DocumentEditorProps {
   editable?: boolean;
 }
 
+// URL validation helper
+function isValidUrl(str: string): boolean {
+  if (/^https?:\/\//i.test(str)) return true;
+  // Also match things like "example.com/path" with a dot
+  if (/^[^\s]+\.[^\s]+/.test(str)) return true;
+  return false;
+}
+
+function normalizeUrl(url: string): string {
+  if (!/^https?:\/\//i.test(url) && !url.startsWith('mailto:')) {
+    return 'https://' + url;
+  }
+  return url;
+}
+
 // Link Edit Popup Component
 function LinkEditPopup({
   editor,
@@ -77,17 +94,23 @@ function LinkEditPopup({
     inputRef.current?.select();
   }, []);
 
-  const handleSave = () => {
+  const handleSaveAsLink = () => {
     if (!editor) return;
     if (url === '') {
       editor.chain().focus().extendMarkRange('link').unsetLink().run();
     } else {
-      let finalUrl = url;
-      if (!/^https?:\/\//i.test(url) && !url.startsWith('mailto:')) {
-        finalUrl = 'https://' + url;
-      }
+      const finalUrl = normalizeUrl(url);
       editor.chain().focus().extendMarkRange('link').setLink({ href: finalUrl }).run();
     }
+    onClose();
+  };
+
+  const handleSaveAsPreview = () => {
+    if (!editor || !url) return;
+    const finalUrl = normalizeUrl(url);
+    // Remove any existing link mark, then insert a link preview block
+    editor.chain().focus().extendMarkRange('link').unsetLink().run();
+    editor.chain().focus().insertLinkPreview({ url: finalUrl }).run();
     onClose();
   };
 
@@ -98,17 +121,11 @@ function LinkEditPopup({
   };
 
   const handleOpenLink = () => {
-    if (url) {
-      let finalUrl = url;
-      if (!/^https?:\/\//i.test(url) && !url.startsWith('mailto:')) {
-        finalUrl = 'https://' + url;
-      }
-      window.open(finalUrl, '_blank');
-    }
+    if (url) openUrl(url);
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-2xl border border-gray-200 p-3 min-w-[320px]">
+    <div className="bg-white rounded-xl shadow-2xl border border-gray-200 p-3 min-w-[340px]">
       <div className="flex items-center gap-2 mb-2">
         <LinkIcon className="w-4 h-4 text-gray-400" />
         <span className="text-sm font-medium text-gray-700">Link bearbeiten</span>
@@ -119,11 +136,11 @@ function LinkEditPopup({
         value={url}
         onChange={(e) => setUrl(e.target.value)}
         placeholder="https://example.com"
-        className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2"
+        className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 mb-3"
         onKeyDown={(e) => {
           if (e.key === 'Enter') {
             e.preventDefault();
-            handleSave();
+            handleSaveAsLink();
           }
           if (e.key === 'Escape') {
             onClose();
@@ -156,13 +173,75 @@ function LinkEditPopup({
           >
             Abbrechen
           </button>
+          {url && (
+            <button
+              onClick={handleSaveAsPreview}
+              className="px-3 py-1.5 text-sm text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors"
+              title="Als Vorschau-Karte einfügen"
+            >
+              Vorschau
+            </button>
+          )}
           <button
-            onClick={handleSave}
+            onClick={handleSaveAsLink}
             className="px-3 py-1.5 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           >
-            Speichern
+            Link
           </button>
         </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Paste Link Prompt ────────────────────────────────────────────────────
+
+function PasteLinkPrompt({
+  url,
+  onAsLink,
+  onAsPreview,
+  onDismiss,
+}: {
+  url: string;
+  onAsLink: () => void;
+  onAsPreview: () => void;
+  onDismiss: () => void;
+}) {
+  const hostname = (() => {
+    try { return new URL(url).hostname.replace('www.', ''); } catch { return url; }
+  })();
+
+  // Auto-dismiss after 5 seconds → insert as normal link
+  useEffect(() => {
+    const timer = setTimeout(onAsLink, 5000);
+    return () => clearTimeout(timer);
+  }, [onAsLink]);
+
+  return (
+    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[10001] animate-slide-up">
+      <div className="bg-white rounded-xl shadow-2xl border border-gray-200 p-3 flex items-center gap-3">
+        <span className="text-sm text-gray-600 whitespace-nowrap">
+          <span className="font-medium text-gray-900">{hostname}</span> einfügen als:
+        </span>
+        <button
+          onClick={onAsLink}
+          className="px-3 py-1.5 text-sm text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors whitespace-nowrap"
+        >
+          Link
+        </button>
+        <button
+          onClick={onAsPreview}
+          className="px-3 py-1.5 text-sm text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors whitespace-nowrap"
+        >
+          Vorschau
+        </button>
+        <button
+          onClick={onDismiss}
+          className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
+        >
+          <span className="sr-only">Schließen</span>
+          ×
+        </button>
       </div>
     </div>
   );
@@ -204,6 +283,7 @@ export function DocumentEditor({
   const [slashMenuOpen, setSlashMenuOpen] = useState(false);
   const [slashMenuFilter, setSlashMenuFilter] = useState('');
   const [selectedSlashIndex, setSelectedSlashIndex] = useState(0);
+  const [pastedUrl, setPastedUrl] = useState<string | null>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
 
   const editor = useEditor({
@@ -267,6 +347,7 @@ export function DocumentEditor({
       }),
       Typography,
       TallyMarks,
+      LinkPreview,
     ],
     content: content ? JSON.parse(content) : undefined,
     editable,
@@ -274,6 +355,29 @@ export function DocumentEditor({
       attributes: {
         spellcheck: 'true',
         'data-gramm': 'false', // Disable Grammarly
+      },
+      handleClick(_view, _pos, event) {
+        // Open links in system browser on click
+        const target = event.target as HTMLElement;
+        const link = target.closest('a');
+        if (link) {
+          const href = link.getAttribute('href');
+          if (href) {
+            event.preventDefault();
+            openUrl(href);
+            return true;
+          }
+        }
+        return false;
+      },
+      handlePaste(_view, event) {
+        const text = event.clipboardData?.getData('text/plain')?.trim();
+        if (text && isValidUrl(text)) {
+          // Pasted a bare URL — show the prompt to choose link type
+          setPastedUrl(normalizeUrl(text));
+          // Let TipTap handle the default paste (inserts as text with auto-link)
+        }
+        return false; // Don't prevent default paste
       },
     },
     onUpdate: ({ editor }) => {
@@ -641,6 +745,25 @@ export function DocumentEditor({
         editor={editor}
         className="prose prose-gray max-w-none p-4 min-h-[300px] focus:outline-none"
       />
+
+      {/* Paste URL Prompt — shown when a bare URL is pasted */}
+      {pastedUrl && (
+        <PasteLinkPrompt
+          url={pastedUrl}
+          onAsLink={() => {
+            // Already pasted as text/auto-linked — just dismiss
+            setPastedUrl(null);
+          }}
+          onAsPreview={() => {
+            if (editor) {
+              // Undo the pasted text, then insert a link preview block
+              editor.chain().focus().undo().insertLinkPreview({ url: pastedUrl }).run();
+            }
+            setPastedUrl(null);
+          }}
+          onDismiss={() => setPastedUrl(null)}
+        />
+      )}
     </div>
   );
 }

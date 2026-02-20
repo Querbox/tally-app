@@ -2,6 +2,7 @@ import { useEditor, EditorContent } from '@tiptap/react';
 import { BubbleMenu } from '@tiptap/react/menus';
 import StarterKit from '@tiptap/starter-kit';
 import Link from '@tiptap/extension-link';
+import { openUrl } from '../../utils/openUrl';
 import TaskList from '@tiptap/extension-task-list';
 import TaskItem from '@tiptap/extension-task-item';
 import Placeholder from '@tiptap/extension-placeholder';
@@ -48,7 +49,7 @@ export function TaskDescriptionEditor({
         },
       }),
       Link.configure({
-        openOnClick: true,
+        openOnClick: false,
         HTMLAttributes: {
           class: 'text-blue-600 underline cursor-pointer',
         },
@@ -67,6 +68,19 @@ export function TaskDescriptionEditor({
     editorProps: {
       attributes: {
         class: 'prose prose-sm max-w-none focus:outline-none min-h-[80px]',
+      },
+      handleClick(_view, _pos, event) {
+        const target = event.target as HTMLElement;
+        const link = target.closest('a');
+        if (link) {
+          const href = link.getAttribute('href');
+          if (href) {
+            event.preventDefault();
+            openUrl(href);
+            return true;
+          }
+        }
+        return false;
       },
     },
     onUpdate: ({ editor }) => {

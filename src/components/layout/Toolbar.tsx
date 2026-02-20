@@ -1,27 +1,12 @@
 import { Search } from 'lucide-react';
-import { getCurrentWindow } from '@tauri-apps/api/window';
 
 interface ToolbarProps {
   onOpenSearch: () => void;
 }
 
 export function Toolbar({ onOpenSearch }: ToolbarProps) {
-  const handleMouseDown = async (e: React.MouseEvent) => {
-    // Only start dragging on left mouse button and not on interactive elements
-    if (e.button !== 0) return;
-    const target = e.target as HTMLElement;
-    if (target.closest('button')) return;
-
-    try {
-      await getCurrentWindow().startDragging();
-    } catch {
-      // Ignore errors (e.g., when not running in Tauri)
-    }
-  };
-
   return (
     <div
-      onMouseDown={handleMouseDown}
       className="h-11 flex items-center justify-center px-4 bg-[#38383a] border-b border-[#2a2a2c] select-none"
     >
       {/* Left spacer for traffic lights */}

@@ -43,6 +43,16 @@ export interface Release {
  */
 export const RELEASES: Release[] = [
   {
+    version: '1.5.0',
+    date: '2026-02-20',
+    title: 'Links & Fenster',
+    highlights: [
+      { text: 'Links in Dokumenten öffnen sich im Browser', emoji: '🔗' },
+      { text: 'Rich-Link-Vorschau mit Titel, Bild und Beschreibung', emoji: '🖼️' },
+      { text: 'Fenster verschieben funktioniert jetzt auch bei Overlays', emoji: '🪟' },
+    ],
+  },
+  {
     version: '1.4.1',
     date: '2026-02-19',
     title: 'Datumsnavigation',
@@ -141,7 +151,7 @@ export const RELEASES: Release[] = [
 /**
  * Aktuelle App-Version (muss mit settingsStore übereinstimmen)
  */
-export const CURRENT_VERSION = '1.4.1';
+export const CURRENT_VERSION = '1.5.0';
 
 /**
  * Vergleicht zwei Versionsnummern.

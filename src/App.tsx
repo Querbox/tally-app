@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback, useMemo, lazy, Suspense } fro
 import { useShallow } from 'zustand/react/shallow';
 import { Sidebar } from './components/layout/Sidebar';
 import { Toolbar } from './components/layout/Toolbar';
+import { WindowDragRegion } from './components/layout/WindowDragRegion';
 import { SearchModal } from './components/search/SearchModal';
 import { DayView } from './views/DayView';
 import { CalendarView } from './views/CalendarView';
@@ -506,6 +507,9 @@ function AppContent() {
 
       {/* Floating Assistant Tally */}
       <FloatingAssistant />
+
+      {/* Global drag region - always on top so window can be dragged even with overlays open */}
+      <WindowDragRegion />
     </div>
   );
 }

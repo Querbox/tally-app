@@ -1,10 +1,10 @@
 {
-  "version": "1.4.1",
-  "notes": "Datumsnavigation im DayView: Zwischen Tagen wechseln mit Pfeilen, Heute-Button zum Zurückspringen.",
-  "pub_date": "2026-02-19T00:00:00Z",
+  "version": "1.5.0",
+  "notes": "Links in Dokumenten öffnen sich im Browser, Rich-Link-Vorschau mit Titel und Bild, Fenster verschieben bei Overlays.",
+  "pub_date": "2026-02-20T00:00:00Z",
   "platforms": {
     "darwin-aarch64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUldUZHFzWkd4TXlPcUZvOW9XUlo4bW9wSTVteWNTd1g0K3dtKzBudUdCbGlHYjliYU9EOGRpWVcwQU1JbzFXYXljbGFXdWJrc2pEeEt1Q3RTUHZkK1puVmpqZloxUllBWXdJPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzcxNTExMDk0CWZpbGU6VGFsbHkuYXBwLnRhci5negpHc2tPQjVHRUpYSXB6NitMMllZVmg5c2oxdnluWkJ0bVNyZUdiVnZ0cDd5QnlJS2NKZ3p0QWFvKzQ1VHNMUHVtWm1SMjB1djljeEZKZGg1M0daVThCdz09Cg==",
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUldUZHFzWkd4TXlPcU94U3FzczVRR2lZampwRm0yTGNxQ25zQ1M3Nit4eEEyb3crM25CUThJaE1QK1hXQUlrNFh1bllRTFdrNExtRURkNXBuL3BBY0drVk9yUGsyV1dQdndnPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzcxNTc2ODkxCWZpbGU6VGFsbHkuYXBwLnRhci5negpFMlRMSW4yd2JNeVI2ZFNzbmk2WE9BSWFaeld0NmtlMjgyZ3ZpenFycXgxWFVEQXhYZi9PVDI3QUtFWFZGUXNORmxXU0tKd0FqZVBlSjFOaWdhKzFCdz09Cg==",
       "url": "https://github.com/Querbox/tally-app/releases/latest/download/Tally.app.tar.gz"
     }
   }
